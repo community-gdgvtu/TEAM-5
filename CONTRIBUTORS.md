@@ -6,7 +6,7 @@ Cross-border team: GDG on Campus VTU Belagavi × GDG on Campus Waseda University
 
 | Name | GitHub Handle | Institution | Role |
 |------|---------------|--------------|------|
-|      |               | VTU Belagavi |      |
+| chetan r medar     |  https://github.com/cyberhatc/             | VTU Belagavi |      |
 |      |               | VTU Belagavi |      |
 |      |               | Waseda University |      |
 |      |               | Waseda University |      |
