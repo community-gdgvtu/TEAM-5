@@ -1,158 +1,167 @@
-# TEAM-5
+<div align="center">
 
-# CivicFix 
+# 🏗️ CivicFix AI
 
-**Decentralizing urban repair through AI-verified community crowdfunding and micro-gig economies.**
+### Decentralizing urban repair through AI-verified community crowdfunding and micro-gig economies.
 
-Built for the GDG Hackathon — Team 5
+[![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com)
+[![Gemini AI](https://img.shields.io/badge/Gemini_AI-Powered-4285F4?logo=google&logoColor=white)](https://ai.google.dev)
+
+</div>
 
 ---
 
-## The Problem
+## 🧩 The Problem: The "Civic Execution Gap"
 
-Local communities suffer from deteriorating micro-infrastructure (potholes, broken streetlights, damaged sidewalks). Municipal systems digitize complaints but fail to digitize solutions. This creates three systemic failures:
+Cities digitize **complaints** but fail to digitize **solutions**. Local communities suffer from deteriorating micro-infrastructure — potholes, broken streetlights, damaged sidewalks — while municipalities are bottlenecked by bureaucratic routing, budget constraints, and limited bandwidth. Citizens lose trust, small repairs snowball into large crises, and local workers who *could* fix these issues have no way to connect with the demand.
 
-1. **Municipal Bottleneck** — Bureaucratic routing and budget constraints leave minor repairs unresolved for months
-2. **Black-Box Reporting** — Citizens submit issues with no feedback, breeding civic apathy
-3. **Untapped Workforce** — Local gig workers lack a centralized marketplace for small, immediate jobs
+CivicFix AI bridges this gap by creating a **decentralized repair ecosystem** where citizens report, communities crowdfund, local workers bid, and AI verifies — all without waiting for municipal budgets.
 
-## The Solution
+---
 
-CivicFix AI closes the loop with an AI-powered, community-driven repair platform:
+## 🏛️ Architecture: 4-Role System
 
-1. **Citizen reports** a civic issue with a photo (auto geo-tagged)
-2. **AI estimates** the repair cost via computer vision
-3. **Community funds** the repair through micro-crowdfunding
-4. **Local worker** claims the job from a gig marketplace
-5. **AI verifies** completion by comparing before/after photos
-6. **Funds released** via escrow only after verification
+CivicFix operates through four distinct user roles, each with their own dashboard:
 
-## Tech Stack
+| Role | Color | Description |
+|------|-------|-------------|
+| 🟢 **Citizen** | Green | Report issues, crowdfund repairs, track progress, vote on priorities |
+| 🔵 **Organization** | Blue | Municipal admin — verify reports, manage pipeline, resolve disputes, analytics |
+| 🟠 **Worker** | Orange | Local contractors — browse jobs, submit bids, complete repairs |
+| 🟣 **Investor** | Purple | Fund repairs, set auto-investment rules, track portfolio impact |
+
+### Flow
+```
+Citizen Reports → Org Verifies → Crowdfunding → Workers Bid → Repair Completed → AI Verifies → Payout
+```
+
+---
+
+## 🔵 Organization Dashboard (Role 2) — 10 Screens
+
+The Organization (Municipal Admin) dashboard is the operational command center. It includes:
+
+### Screen Map
+
+| # | Screen | Component | Description |
+|---|--------|-----------|-------------|
+| 1 | **Overview** | `OrgOverview.tsx` | KPI cards (Pending, Active, Funded, Resolution Rate), SVG donut chart for status distribution, CSS bar chart for category breakdown, audit log timeline, quick actions |
+| 2 | **Incoming Queue** | `IncomingQueue.tsx` | Filterable queue of citizen reports (category, severity, search, safety hazard toggle), bulk approve/reject with reason modal, sort by AI confidence |
+| 3 | **Report Verification** | `ReportVerification.tsx` | Two-column deep-dive: photo viewer, location info, reporter profile, AI analysis panel (cost estimate, confidence score, severity reasoning), Haversine duplicate check (200m radius), municipal notes |
+| 4 | **Approval Confirmation** | *(within ReportVerification)* | Animated checkmark confirmation when an issue is pushed to the crowdfunding marketplace |
+| 5 | **Jobs Pipeline** | `ActiveJobsKanban.tsx` | 5-column Kanban board (Funding → Job Open → In Progress → Submitted → Verified), SLA warning badges, funding progress bars, worker assignments |
+| 6 | **Dispute Resolution** | `DisputeResolution.tsx` | Open/Investigating/Resolved tabs, before/after photo comparison, AI verification results, resolution actions with notes |
+| 7 | **Worker Directory** | `WorkerDirectory.tsx` | Searchable grid of registered workers — ratings, skill categories, verification status, masked phone numbers, expandable detail cards |
+| 8 | **Area Analytics** | `AreaAnalytics.tsx` | Pure SVG charts (category bars, status donut, monthly trends), ward performance table, budget analysis (allocated vs crowdfunded vs AI-estimated) |
+| 9 | **Team & Access** | `TeamManagement.tsx` | Staff roster CRUD, permission levels (Admin/Manager/Viewer), category assignment, audit log timeline for org activity |
+| 10 | **Settings** | `OrgSettings.tsx` | Org profile, SLA configuration per severity, notification toggles, auto-routing rules preview, JSON/PDF data export, Open Data API toggle |
+
+### Navigation
+- Collapsible **sidebar** with blue-accent active states
+- **Badge counts** on Incoming Queue (pending reports) and Disputes (open disputes)
+- Seamless routing between all 10 screens
+
+---
+
+## 🤖 AI Features
+
+- **Gemini Vision**: Analyzes uploaded photos to auto-detect issue category, estimate severity, and generate repair cost estimates
+- **AI Confidence Score**: Each report gets a confidence percentage for the cost estimate
+- **AI Verification**: Computer vision compares before/after photos to verify repair quality
+- **CIVICOS Chatbot**: AI-powered civic assistant for citizens, workers, and orgs
+- **Smart Severity Reasoning**: AI provides human-readable reasoning for severity classifications
+
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
-|---|---|
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4 |
-| Backend | Express.js, Node.js |
-| Animations | Framer Motion |
-| Icons | Lucide React |
-| Auth | WhatsApp Business API (Meta/Twilio), OTP verification |
-| AI | Google Gemini API (cost estimation, completion verification) |
-| Hosting | Vercel / Railway / Render |
+|-------|-----------|
+| **Frontend** | React 19, TypeScript 5, Tailwind CSS 4 |
+| **Icons** | Lucide React |
+| **AI** | Google Gemini API (multimodal vision + text) |
+| **Backend** | Node.js, Express, Vite (SSR) |
+| **State** | Singleton StoreManager with localStorage persistence |
+| **Charts** | Pure SVG (no chart libraries) |
+| **PDF** | Custom PDF generator for area reports |
+| **i18n** | Multi-language support (English, Hindi, Kannada) |
 
-## User Roles
+---
 
-| Role | Description | Accent Color |
-|---|---|---|
-| **Citizen** | Report issues, donate to campaigns, track progress | Green |
-| **Organization** | Municipal body reviewing reports, managing tenders | Blue |
-| **Worker** | Local contractor bidding on and completing repairs | Orange |
-| **Investor** | Funding high-impact civic infrastructure projects | Purple |
+## 🚀 Run Locally
 
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18+ or Bun
-- npm or bun package manager
-
-### Installation
+**Prerequisites:** Node.js (v20+)
 
 ```bash
-# Clone the repository
-git clone <repo-url>
-cd civic-fix-2
-
-# Install dependencies
+# 1. Install dependencies
 npm install
 
-# Copy environment variables
-cp .env.example .env
-```
+# 2. Set your Gemini API key
+#    Edit .env.local and set GEMINI_API_KEY=your_key_here
 
-### Environment Variables
-
-Edit `.env` and configure:
-
-```env
-# Gemini AI (required for AI features)
-GEMINI_API_KEY="your_key"
-
-# WhatsApp OTP (Meta or Twilio — optional, runs in sandbox mode without)
-META_WHATSAPP_TOKEN=""
-META_PHONE_NUMBER_ID=""
-TWILIO_ACCOUNT_SID=""
-TWILIO_AUTH_TOKEN=""
-```
-
-### Development
-
-```bash
+# 3. Start the dev server
 npm run dev
 ```
 
-App runs at `http://localhost:3000`
+Open **http://localhost:3000** in your browser.
 
-### Production Build
+### Quick Demo
 
-```bash
-npm run build
-npm run start
+1. Click **"Load Demo Data"** in the top banner to populate sample issues, bids, workers, and disputes
+2. Use the **role pills** in the header to switch between Citizen, Organization, Worker, and Investor views
+3. For the Org dashboard: navigate through all 10 screens using the left sidebar
+
+---
+
+## 📁 Project Structure
+
+```
+src/
+├── components/
+│   ├── citizen/          # Citizen dashboard screens
+│   ├── org/              # Organization dashboard (10 screens)
+│   │   ├── OrgDashboard.tsx       # Navigation shell
+│   │   ├── OrgOverview.tsx        # KPI + charts
+│   │   ├── IncomingQueue.tsx      # Report queue
+│   │   ├── ReportVerification.tsx # Verify + approve
+│   │   ├── ActiveJobsKanban.tsx   # Pipeline board
+│   │   ├── DisputeResolution.tsx  # Dispute management
+│   │   ├── WorkerDirectory.tsx    # Worker profiles
+│   │   ├── AreaAnalytics.tsx      # Analytics + charts
+│   │   ├── TeamManagement.tsx     # Staff CRUD
+│   │   └── OrgSettings.tsx        # Configuration
+│   ├── worker/           # Worker dashboard screens
+│   ├── investor/         # Investor dashboard screens
+│   ├── shared/           # Shared components (Header, IssueModal, etc.)
+│   └── civicos/          # CIVICOS AI chatbot
+├── lib/
+│   ├── store.ts          # Singleton state manager
+│   ├── aiService.ts      # Gemini AI integration
+│   ├── pdfGenerator.ts   # PDF report generation
+│   ├── icsGenerator.ts   # Calendar file generation
+│   └── i18n.ts           # Internationalization
+├── types/
+│   └── index.ts          # All TypeScript interfaces
+└── main.tsx              # App entry point
 ```
 
-## Project Structure
+---
 
-```
-civic-fix-2/
-├── server.ts                  # Express backend (API + Vite dev server)
-├── src/
-│   ├── App.tsx                # Root component
-│   ├── main.tsx               # Entry point
-│   ├── types.ts               # TypeScript types
-│   ├── context/
-│   │   └── AppContext.tsx      # Global state + i18n translations
-│   ├── data/
-│   │   └── roleConfig.ts      # Role configs + country codes
-│   ├── lib/
-│   │   └── api/
-│   │       └── auth.ts        # WhatsApp OTP API client
-│   └── components/
-│       ├── auth/
-│       │   ├── LoginSignupFlow.tsx
-│       │   └── CivicosMascot.tsx
-│       ├── dashboard/
-│       │   └── RoleDashboard.tsx
-│       └── ui/
-│           ├── aurora-background.tsx
-│           ├── location-picker.tsx
-│           └── snowfall.tsx
-├── package.json
-├── vite.config.ts
-├── tsconfig.json
-└── .env.example
-```
+## 👥 Team
 
-## Features
+Built for a hackathon. Each team member owns one role dashboard:
 
-- **WhatsApp OTP Authentication** — Secure login via Meta WhatsApp Cloud API or Twilio
-- **Multi-Language Support** — English, Hindi, Spanish, Marathi, Tamil
-- **Role-Based Dashboards** — Tailored views for each user type
-- **Dark / Light Theme** — Toggle with system preference
-- **AI Cost Estimation** — Computer vision estimates repair costs from photos
-- **AI Completion Verification** — Before/after photo comparison for trustless payouts
-- **Community Crowdfunding** — Micro-donations pooled via escrow
-- **Gig Marketplace** — Local workers bid on nearby repair jobs
-- **Responsive Design** — Works on mobile and desktop
+- **Role 1 (Citizen)** — Community reporting & crowdfunding
+- **Role 2 (Organization)** — Municipal admin command center ← *This repo's focus*
+- **Role 3 (Worker)** — Contractor job marketplace
+- **Role 4 (Investor)** — Impact investment dashboard
 
-## API Endpoints
+---
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/api/health` | Health check |
-| GET | `/api/auth/whatsapp-status` | WhatsApp gateway provider status |
-| POST | `/api/auth/check-number` | Check if mobile number is registered |
-| POST | `/api/auth/send-otp` | Send WhatsApp OTP |
-| POST | `/api/auth/verify-otp` | Verify OTP and authenticate |
+<div align="center">
 
-## License
+**CivicFix AI** — *Turning civic complaints into community solutions* 🏙️
 
-MIT
+</div>

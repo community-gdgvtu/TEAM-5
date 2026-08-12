@@ -1,0 +1,6 @@
+{
+  "name": "Civic Fix",
+  "description": "Decentralizing urban repair through AI-verified community crowdfunding and micro-gig economies with 4 roles and 106+ functional tools.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
