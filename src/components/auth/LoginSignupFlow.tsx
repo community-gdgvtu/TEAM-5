@@ -171,7 +171,7 @@ export const LoginSignupFlow: React.FC = () => {
   // One-click demo login — creates a demo Investor account and enters the investor dashboard.
   const handleDemoInvestorLogin = () => {
     const demoUser: UserProfile = {
-      id: `usr_demo_investor_${Date.now()}`,
+      id: "user_demo_investor_001",
       name: "Global Impact Fund",
       mobile: "9876500004",
       countryCode: "+91",
@@ -184,6 +184,50 @@ export const LoginSignupFlow: React.FC = () => {
       supplementaryData: {
         investorEntityName: "Global Impact Fund",
         investorKycStatus: "Verified ESG Fund",
+      },
+    };
+    setCurrentUser(demoUser);
+  };
+
+  // One-click demo login — creates a demo Worker account and enters the Worker
+  // dashboard flow (lands on onboarding → marketplace → bidding → proof → wallet).
+  const handleDemoWorkerLogin = () => {
+    const demoUser: UserProfile = {
+      id: "user_demo_worker_001",
+      name: "Rahul Deshmukh",
+      mobile: "9876500003",
+      countryCode: "+91",
+      email: "rahul.works@contractor.in",
+      age: 31,
+      location: { city: "Bengaluru", state: "Karnataka", country: "India" },
+      role: "worker",
+      verifiedWhatsApp: true,
+      createdAt: new Date().toISOString(),
+      supplementaryData: {
+        workerSkillCategory: "",
+        workerLicenseId: "",
+      },
+    };
+    setCurrentUser(demoUser);
+  };
+
+  // One-click demo login — creates a demo Organization (Municipal Admin) account
+  // and enters the org dashboard flow (queue → AI verify → push to marketplace → jobs → analytics).
+  const handleDemoOrgLogin = () => {
+    const demoUser: UserProfile = {
+      id: "org_mumbai_001",
+      name: "Priya Sharma",
+      mobile: "9876500002",
+      countryCode: "+91",
+      email: "operations@municipal.gov",
+      age: 34,
+      location: { city: "Mumbai", state: "Maharashtra", country: "India" },
+      role: "organization",
+      verifiedWhatsApp: true,
+      createdAt: new Date().toISOString(),
+      supplementaryData: {
+        organizationRegId: "MC-MUM-2026-99",
+        organizationType: "Municipal Corporation",
       },
     };
     setCurrentUser(demoUser);
@@ -542,6 +586,54 @@ export const LoginSignupFlow: React.FC = () => {
                         </div>
                       </div>
                       <ArrowRight className="w-4 h-4 text-purple-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                    </div>
+                  </button>
+                </div>
+
+                {/* One-Click Demo Worker Login */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleDemoWorkerLogin}
+                    className="w-full p-3.5 rounded-xl bg-orange-600/15 border border-orange-500/40 hover:bg-orange-600/25 text-left transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2.5">
+                        <span className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-300 flex items-center justify-center shrink-0">
+                          <HardHat className="w-4 h-4" />
+                        </span>
+                        <div>
+                          <div className="text-xs font-bold text-white">One-Click Demo Login — Worker</div>
+                          <div className="text-[11px] text-slate-400">
+                            Contractor demo · onboarding → marketplace → bids → proof → wallet
+                          </div>
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                    </div>
+                  </button>
+                </div>
+
+                {/* One-Click Demo Organization Login */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleDemoOrgLogin}
+                    className="w-full p-3.5 rounded-xl bg-blue-600/15 border border-blue-500/40 hover:bg-blue-600/25 text-left transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2.5">
+                        <span className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center shrink-0">
+                          <Building2 className="w-4 h-4" />
+                        </span>
+                        <div>
+                          <div className="text-xs font-bold text-white">One-Click Demo Login — Organization</div>
+                          <div className="text-[11px] text-slate-400">
+                            Municipal admin · AI verify queue → push jobs → kanban → analytics
+                          </div>
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-blue-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
                     </div>
                   </button>
                 </div>

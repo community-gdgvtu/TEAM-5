@@ -1,15 +1,15 @@
 import React from "react";
-import { Home, Search, LayoutGrid, BarChart3, User, ArrowLeft, Bell } from "lucide-react";
+import { Compass, LayoutGrid, BarChart3, MessageCircle, Settings, ArrowLeft, Bell } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 
-export type InvestorTab = "feed" | "discover" | "portfolio" | "impact" | "settings";
+export type InvestorTab = "discover" | "portfolio" | "analytics" | "messages" | "settings";
 
 const TABS: { key: InvestorTab; icon: React.ElementType; label: string }[] = [
-  { key: "feed", icon: Home, label: "Feed" },
-  { key: "discover", icon: Search, label: "Discover" },
+  { key: "discover", icon: Compass, label: "Discover" },
   { key: "portfolio", icon: LayoutGrid, label: "Portfolio" },
-  { key: "impact", icon: BarChart3, label: "Impact" },
-  { key: "settings", icon: User, label: "Profile" },
+  { key: "analytics", icon: BarChart3, label: "Analytics" },
+  { key: "messages", icon: MessageCircle, label: "Messages" },
+  { key: "settings", icon: Settings, label: "Settings" },
 ];
 
 const ACCENT = "#a855f7";

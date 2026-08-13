@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Heart, MessageCircle, Share2 } from "lucide-react";
 import { ProgressBar } from "../common/ProgressBar";
 import { Badge } from "../common/Badge";
-import { fmtMoney, Campaign } from "../../data/investorMock";
+import { fmtMoney, Campaign } from "../../api/investorApi";
 
 export const statusTone: Record<string, string> = {
   Funding: "amber",

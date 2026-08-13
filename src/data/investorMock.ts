@@ -327,6 +327,9 @@ const campaigns: Campaign[] = [
 
 const delay = <T,>(v: T): Promise<T> => new Promise((res) => setTimeout(() => res(v), 350));
 
+/** Read-only export of the full campaign dataset (used by the shared feed mock). */
+export const demoCampaigns: Campaign[] = campaigns;
+
 export function getInvestorFeed(): Promise<Campaign[]> {
   return delay(campaigns.filter((c) => c.status === "Funding" || c.status === "InProgress"));
 }

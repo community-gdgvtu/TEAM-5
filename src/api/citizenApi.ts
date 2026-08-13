@@ -1,8 +1,9 @@
-import { apiFetch } from "./index";
+import { apiFetch, withFallback, toSessionToken } from "./index";
 
 /**
- * 🟢 Citizen API client — Teammate A owns this file.
+ * 🟢 Citizen API client.
  * Matches backend/routes/citizen.routes.ts.
+ * Reads MongoDB-backed endpoints; falls back to demo data when offline.
  */
 export interface ReportInput {
   issueType: string;
@@ -19,28 +20,46 @@ export interface Report {
   aiEstimate?: { amount: number; currency: string; severity: string; confidence: number };
   status: string;
   photoUrl?: string;
+  title?: string;
+  category?: string;
+  emoji?: string;
+  gradient?: string;
+  area?: string;
+  citizenName?: string;
+  citizenAvatar?: string;
+  submittedAt?: string;
+  aiConfidence?: number;
+  urgency?: string;
 }
 
 export async function getMyReports(token?: string | null): Promise<{ reports: Report[] }> {
-  return apiFetch<{ reports: Report[] }>("/api/reports", {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-  });
+  return withFallback<{ reports: Report[] }>(
+    apiFetch("/api/reports", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }),
+    { reports: [] }
+  );
 }
 
 export async function createReport(input: ReportInput, token?: string | null): Promise<{ report: Report }> {
   return apiFetch<{ report: Report }>("/api/reports", {
     method: "POST",
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    headers: { Authorization: `Bearer ${toSessionToken(token)}` },
     body: JSON.stringify(input),
   });
 }
 
 export async function getDonationCampaigns(): Promise<{ campaigns: any[] }> {
-  return apiFetch<{ campaigns: any[] }>("/api/campaigns");
+  return withFallback<{ campaigns: any[] }>(
+    apiFetch("/api/campaigns"),
+    { campaigns: [] }
+  );
 }
 
 export async function getIssueDetail(id: string): Promise<{ report: Report | undefined }> {
-  const { reports } = await getMyReports();
-  const found = reports.find((r) => r.id === id) || reports[0];
-  return { report: found };
+  const report = await withFallback<Report | undefined>(
+    apiFetch(`/api/reports/${id}`).then((r: any) => r.report),
+    (await getMyReports()).reports.find((r) => r.id === id)
+  );
+  return { report };
 }

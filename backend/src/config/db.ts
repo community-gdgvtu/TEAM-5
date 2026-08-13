@@ -1,14 +1,16 @@
 import mongoose from "mongoose";
 import { env } from "./env";
 import UserModelMongo from "../models/User.model";
+import { seedDatabase } from "./seed";
 
 let mongoConnected = false;
 
 export async function connectMongoDB() {
   try {
-    await mongoose.connect(env.mongodbUri, { serverSelectionTimeoutMS: 3000 });
+    await mongoose.connect(env.mongodbUri, { serverSelectionTimeoutMS: 15000 });
     mongoConnected = true;
     console.log("📦 Connected to MongoDB successfully");
+    await seedDatabase();
   } catch (err: any) {
     console.warn("⚠️ MongoDB connection failed, using in-memory fallback:", err.message);
     mongoConnected = false;

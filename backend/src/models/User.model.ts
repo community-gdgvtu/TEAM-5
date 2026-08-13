@@ -24,6 +24,11 @@ export interface IUserProfile {
     investorEntityName?: string;
     investorKycStatus?: string;
   };
+  /** Org role — worker directory fields (additive, optional). */
+  workerStatus?: "available" | "on-job" | "suspended";
+  workerRating?: number;
+  workerJobsDone?: number;
+  workerVerified?: boolean;
 }
 
 export interface IUserDocument extends IUserProfile {
@@ -48,6 +53,10 @@ const UserSchema: Schema = new Schema(
     verifiedAt: { type: String },
     createdAt: { type: String },
     supplementaryData: { type: Schema.Types.Mixed, default: {} },
+    workerStatus: { type: String, enum: ["available", "on-job", "suspended"], default: "available" },
+    workerRating: { type: Number, min: 0, max: 5, default: 4.5 },
+    workerJobsDone: { type: Number, default: 0 },
+    workerVerified: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

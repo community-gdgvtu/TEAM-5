@@ -9,8 +9,11 @@ import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
 
 /** Photos, funding progress bar, comments, timeline. */
-export const IssueDetailScreen: React.FC<NavScreenProps> = () => {
-  const { data: report } = useFetch(() => import("../../api/citizenApi").then(m => m.getIssueDetail("iss_001")), []);
+export const IssueDetailScreen: React.FC<NavScreenProps> = ({ params }) => {
+  const { data: report } = useFetch(
+    () => import("../../api/citizenApi").then((m) => m.getIssueDetail((params?.id as string) || "rep_001")),
+    [params?.id]
+  );
 
   if (!report || !report.report) {
     return (
@@ -27,7 +30,7 @@ export const IssueDetailScreen: React.FC<NavScreenProps> = () => {
         <p className="text-sm text-slate-400">Status: {report.report.status}</p>
         {report.report.aiEstimate && (
           <p className="text-sm text-slate-400">
-            AI Estimate: {report.report.aiEstimate.currency === "INR" ? "₿" : "$"}{report.report.aiEstimate.amount}
+            AI Estimate: ₹{report.report.aiEstimate.amount.toLocaleString("en-IN")}
           </p>
         )}
         <p className="text-sm text-slate-300">{report.report.summary}</p>

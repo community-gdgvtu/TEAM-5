@@ -1,7 +1,7 @@
 import React from "react";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
-import { getTrustScore, Campaign } from "../../data/investorMock";
+import { getTrustScore, Campaign } from "../../api/investorApi";
 import { ShieldCheck, BadgeCheck, Star, Users, Sparkles, TrendingUp } from "lucide-react";
 import { TrustRing } from "../../components/investor/InvestorBits";
 import { Badge } from "../../components/common/Badge";

@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { NavScreenProps } from "../../navigation/types";
 import { useApp } from "../../context/AppContext";
+import { useRouter } from "../../router";
 import { CreditCard, ShieldCheck, Bell, Globe, LogOut, ChevronRight, CheckCircle2 } from "lucide-react";
 import { Badge } from "../../components/common/Badge";
 
 /** Screen 9 — Investor Settings. */
 export const InvestorSettingsScreen: React.FC<NavScreenProps> = ({ go, back }) => {
   const { currentUser, logout } = useApp();
+  const { navigate } = useRouter();
   const [notifs, setNotifs] = useState(true);
   const [impactAlerts, setImpactAlerts] = useState(true);
   const [autoFund, setAutoFund] = useState(false);
@@ -73,6 +75,7 @@ export const InvestorSettingsScreen: React.FC<NavScreenProps> = ({ go, back }) =
         <button
           onClick={() => {
             logout();
+            navigate("/");
           }}
           className="w-full py-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm font-semibold flex items-center justify-center gap-2"
         >

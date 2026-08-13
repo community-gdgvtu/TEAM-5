@@ -1,7 +1,7 @@
 import React from "react";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
-import { getPayout, fmtMoney, Campaign } from "../../data/investorMock";
+import { getPayout, fmtMoney, Campaign } from "../../api/investorApi";
 import { CheckCircle2, Wallet, ArrowLeft } from "lucide-react";
 import { Badge } from "../../components/common/Badge";
 

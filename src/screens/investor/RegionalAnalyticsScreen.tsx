@@ -1,7 +1,7 @@
 import React from "react";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
-import { getRegionalImpact, RegionalImpact, fmtMoney } from "../../data/investorMock";
+import { getRegionalImpact, RegionalImpact, fmtMoney } from "../../api/investorApi";
 import { StatCard } from "../../components/common/StatCard";
 import { Wallet, CheckCircle2, MapPin, Users, TrendingUp } from "lucide-react";
 import { Badge } from "../../components/common/Badge";

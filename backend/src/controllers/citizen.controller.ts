@@ -1,25 +1,62 @@
 import { Request, Response } from "express";
 import { IssueModel } from "../models/Issue.model";
+import { CampaignModel } from "../models/Campaign.model";
 import { estimateCost } from "../services/ai.service";
+import { createFeedPost, FeedPostInput } from "../services/feed.service";
 import { isMongoConnected } from "../config/db";
+import { demoReports, demoCampaigns } from "../config/demoData";
 
 /**
- * 🟢 Teammate A — Citizen endpoints.
+ * 🟢 Citizen endpoints.
  * Owns this file + routes/citizen.routes.ts.
- * Falls back to mock data when MongoDB is offline so the demo always runs.
+ * Reads MongoDB when connected, falls back to rich demo data otherwise.
  */
+
+function toCitizenReport(issue: any): any {
+  const rawLoc =
+    typeof issue.location === "string"
+      ? { city: issue.location.split(",")[0]?.trim() || "India", state: issue.location.split(",").slice(1).join(",").trim(), country: "India" }
+      : issue.location || { city: "India", state: "", country: "India" };
+  const numericEstimate = typeof issue.aiEstimate === "number" ? issue.aiEstimate : issue.aiEstimate?.amount;
+  const aiEstimate = {
+    amount: numericEstimate ?? 0,
+    currency: "INR",
+    severity: issue.urgency === "High" ? "Critical" : issue.urgency === "Medium" ? "Moderate" : "Minor",
+    confidence: issue.aiConfidence ?? 0.8,
+    summary: `AI estimate: approx ₹${(numericEstimate ?? 0).toLocaleString("en-IN")}.`,
+  };
+  return {
+    id: issue.id,
+    title: issue.title || issue.issueType || "Civic issue",
+    category: issue.category || "General",
+    issueType: issue.issueType || (issue.category || "other").toLowerCase(),
+    description: issue.description || issue.title || "",
+    summary: issue.summary || aiEstimate.summary,
+    location: rawLoc,
+    aiEstimate,
+    aiConfidence: issue.aiConfidence ?? 0.8,
+    emoji: issue.emoji || "🛠️",
+    gradient: issue.gradient || "linear-gradient(135deg,#3b82f6,#6366f1)",
+    area: issue.area || rawLoc.city || "—",
+    citizenName: issue.citizenName || "You",
+    citizenAvatar: issue.citizenAvatar || "🧑",
+    submittedAt: issue.submittedAt || issue.createdAt || "recently",
+    status: issue.reviewStatus === "approved" ? "Funding" : issue.reviewStatus === "rejected" ? "Rejected" : issue.reviewStatus === "pending" ? "Pending review" : (issue.status || "pending"),
+    urgency: issue.urgency || "Medium",
+  };
+}
 
 export async function getMyReports(req: Request, res: Response) {
   try {
     if (!isMongoConnected()) {
-      return res.json({ reports: MOCK_REPORTS });
+      return res.json({ reports: demoReports.map(toCitizenReport) });
     }
     const userId = (req as any).userId;
-    const issues = await IssueModel.find({ reporterId: userId }).lean();
-    return res.json({ reports: issues.length ? issues : MOCK_REPORTS });
+    const issues = await IssueModel.find(userId ? { reporterId: userId } : {}).lean();
+    return res.json({ reports: issues.length ? issues.map(toCitizenReport) : demoReports.map(toCitizenReport) });
   } catch (err) {
     console.error("[CITIZEN] getMyReports:", err);
-    return res.json({ reports: MOCK_REPORTS });
+    return res.json({ reports: demoReports.map(toCitizenReport) });
   }
 }
 
@@ -27,13 +64,13 @@ export async function getIssueDetail(req: Request, res: Response) {
   const { id } = req.params;
   try {
     if (!isMongoConnected()) {
-      const mock = MOCK_REPORTS.find((r) => r.id === id);
+      const mock = demoReports.find((r) => r.id === id);
       if (!mock) return res.status(404).json({ error: "Issue not found." });
-      return res.json(mock);
+      return res.json({ report: toCitizenReport(mock) });
     }
     const issue = await IssueModel.findOne({ id }).lean();
     if (!issue) return res.status(404).json({ error: "Issue not found." });
-    return res.json(issue);
+    return res.json({ report: toCitizenReport(issue) });
   } catch (err) {
     return res.status(500).json({ error: "Failed to load issue." });
   }
@@ -46,22 +83,7 @@ export async function createReport(req: Request, res: Response) {
 
     const aiEstimate = await estimateCost({ photoUrl: photoUrl || "", issueType: issueType || "pothole", description });
 
-    if (!isMongoConnected()) {
-      return res.status(201).json({
-        report: {
-          id: `iss_${Date.now()}`,
-          reporterId: userId || "user_citizen_001",
-          issueType: issueType || "pothole",
-          description: description || "New issue reported by citizen",
-          photoUrl,
-          location: location || { city: "Mumbai", state: "Maharashtra", country: "India" },
-          aiEstimate,
-          status: "Reported",
-        },
-      });
-    }
-
-    const issue = new IssueModel({
+    const report = {
       id: `iss_${Date.now()}`,
       reporterId: userId || "user_citizen_001",
       issueType: issueType || "pothole",
@@ -70,40 +92,55 @@ export async function createReport(req: Request, res: Response) {
       location: location || { city: "Mumbai", state: "Maharashtra", country: "India" },
       aiEstimate,
       status: "Reported",
-    });
+    };
+
+    const city = report.location.city || "site";
+    const postInput: FeedPostInput = {
+      type: "issue",
+      title: `${report.issueType.charAt(0).toUpperCase()}${report.issueType.slice(1)} reported on ${city}`,
+      caption: report.description,
+      category: report.issueType,
+      emoji: report.issueType === "pothole" ? "🕳️" : report.issueType === "streetlight" ? "💡" : "🛠️",
+      gradient: "linear-gradient(135deg,#f97316,#ef4444)",
+      authorId: report.reporterId,
+      authorName: (req as any).userName || "You",
+      authorAvatar: "🧑",
+      authorRole: "citizen",
+      authorVerified: true,
+      area: city,
+      location: `${report.location.city || ""}, ${report.location.state || ""}`.replace(/^,\s*/, "") || "India",
+      amount: aiEstimate?.amount,
+      status: "Pending review",
+      urgency: aiEstimate?.severity === "Critical" ? "High" : aiEstimate?.severity === "Minor" ? "Low" : "Medium",
+      hashtags: ["#CitizenReported", "#FixIt"],
+      issueId: report.id,
+    };
+
+    if (!isMongoConnected()) {
+      await createFeedPost(postInput);
+      return res.status(201).json({ report });
+    }
+
+    const issue = new IssueModel(report);
     await issue.save();
 
-    return res.status(201).json({ report: issue });
+    await createFeedPost(postInput);
+
+    return res.status(201).json({ report });
   } catch (err) {
     console.error("[CITIZEN] createReport:", err);
     return res.status(500).json({ error: "Failed to create report." });
   }
 }
 
-export async function getDonationCampaigns(req: Request, res: Response) {
-  return res.json({ campaigns: MOCK_CAMPAIGNS });
+export async function getDonationCampaigns(_req: Request, res: Response) {
+  try {
+    if (!isMongoConnected()) {
+      return res.json({ campaigns: demoCampaigns });
+    }
+    const campaigns = await CampaignModel.find().lean();
+    return res.json({ campaigns: campaigns.length ? campaigns : demoCampaigns });
+  } catch (err) {
+    return res.json({ campaigns: demoCampaigns });
+  }
 }
-
-const MOCK_REPORTS = [
-  {
-    id: "iss_001",
-    issueType: "pothole",
-    description: "Deep pothole on Main St near bus stop",
-    location: { city: "Mumbai", state: "Maharashtra", country: "India" },
-    aiEstimate: { amount: 45, currency: "INR", severity: "Moderate", confidence: 0.72 },
-    status: "Funding",
-  },
-  {
-    id: "iss_002",
-    issueType: "streetlight",
-    description: "Streetlight flickering for 2 weeks",
-    location: { city: "Delhi", state: "Delhi NCR", country: "India" },
-    aiEstimate: { amount: 150, currency: "INR", severity: "Minor", confidence: 0.8 },
-    status: "Reported",
-  },
-];
-
-const MOCK_CAMPAIGNS = [
-  { id: "cmp_001", title: "Fix the pothole on Main St — ₹45 target", targetAmount: 45, raisedAmount: 12 },
-  { id: "cmp_002", title: "Replace flickering streetlight — ₹150 target", targetAmount: 150, raisedAmount: 0 },
-];

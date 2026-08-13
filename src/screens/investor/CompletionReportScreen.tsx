@@ -1,7 +1,7 @@
 import React from "react";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
-import { getCompletionReport, Campaign } from "../../data/investorMock";
+import { getCompletionReport, Campaign } from "../../api/investorApi";
 import { Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
 import { Badge } from "../../components/common/Badge";
 

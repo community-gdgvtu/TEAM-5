@@ -1,7 +1,7 @@
 import React from "react";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
-import { getPortfolio, fmtMoney, Campaign } from "../../data/investorMock";
+import { getPortfolio, fmtMoney, Campaign } from "../../api/investorApi";
 import { useApp } from "../../context/AppContext";
 import { LayoutGrid, CheckCircle2, Coins } from "lucide-react";
 import { Badge } from "../../components/common/Badge";

@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
-import { getInvestorFeed, Campaign, Comment } from "../../data/investorMock";
+import { getInvestorFeed, Campaign, Comment } from "../../api/investorApi";
 import { useApp } from "../../context/AppContext";
 import { Search, BadgeCheck } from "lucide-react";
 import { CampaignCover, FundingMeter, PostActions } from "../../components/investor/InvestorBits";

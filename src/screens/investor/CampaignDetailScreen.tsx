@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
-import { getCampaign, Campaign } from "../../data/investorMock";
+import { getCampaign, Campaign } from "../../api/investorApi";
 import { BadgeCheck, Star, ShieldCheck, Coins, MessageCircle, Sparkles } from "lucide-react";
 import { CampaignCover, FundingMeter, PostActions, TrustRing } from "../../components/investor/InvestorBits";
 import { Badge } from "../../components/common/Badge";
-import { fmtMoney } from "../../data/investorMock";
+import { fmtMoney } from "../../api/investorApi";
 
 /** Screen 2 — Campaign Detail (Investor View). */
 export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) => {

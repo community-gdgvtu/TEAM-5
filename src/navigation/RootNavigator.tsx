@@ -1,29 +1,27 @@
 import React from "react";
-import { useApp } from "../context/AppContext";
 import { CitizenNavigator } from "./CitizenNavigator";
 import { OrgNavigator } from "./OrgNavigator";
 import { WorkerNavigator } from "./WorkerNavigator";
 import { InvestorNavigator } from "./InvestorNavigator";
+import { AppRole } from "../router";
 
 /**
  * Shared — role-based routing switch.
- * Renders the navigator matching the logged-in user's role.
+ * The URL decides the role (e.g. /citizen/dashboard → CitizenNavigator);
+ * the section string deep-links to that role's tab (e.g. "messages").
  * Each teammate swaps their own navigator's screens; this file stays small.
  */
-export const RootNavigator: React.FC = () => {
-  const { currentUser } = useApp();
-  const role = currentUser?.role ?? "citizen";
-
+export const RootNavigator: React.FC<{ role: AppRole; section?: string }> = ({ role, section }) => {
   switch (role) {
     case "organization":
-      return <OrgNavigator />;
+      return <OrgNavigator section={section} />;
     case "worker":
-      return <WorkerNavigator />;
+      return <WorkerNavigator section={section} />;
     case "investor":
-      return <InvestorNavigator />;
+      return <InvestorNavigator section={section} />;
     case "citizen":
     default:
-      return <CitizenNavigator />;
+      return <CitizenNavigator section={section} />;
   }
 };
 
