@@ -103,33 +103,60 @@ npm run start
 
 ```
 civic-fix-2/
-├── server.ts                  # Express backend (API + Vite dev server)
-├── src/
-│   ├── App.tsx                # Root component
-│   ├── main.tsx               # Entry point
-│   ├── types.ts               # TypeScript types
-│   ├── context/
-│   │   └── AppContext.tsx      # Global state + i18n translations
-│   ├── data/
-│   │   └── roleConfig.ts      # Role configs + country codes
-│   ├── lib/
-│   │   └── api/
-│   │       └── auth.ts        # WhatsApp OTP API client
+├── backend/                    # Express + MongoDB backend
+│   ├── server.ts               # Entry point (Vite dev / static prod)
+│   └── src/
+│       ├── app.ts              # Express app assembly
+│       ├── config/             # env + db connection (Mongo w/ in-memory fallback)
+│       ├── models/             # Mongoose schemas (User, Issue, Campaign, Job, Bid…)
+│       ├── routes/             # auth + one router per role
+│       ├── controllers/        # one controller per role
+│       ├── services/           # whatsapp, ai, payment, notification, upload
+│       └── middleware/         # auth, role guard, error handler
+├── src/                        # React frontend
+│   ├── App.tsx                 # Root component (login vs RootNavigator)
+│   ├── main.tsx                # Entry point
+│   ├── types.ts                # TypeScript types
+│   ├── api/                    # API clients — one per role
+│   │   ├── authApi.ts
+│   │   ├── citizenApi.ts       # 🟢 A
+│   │   ├── organizationApi.ts  # 🔵 B
+│   │   ├── workerApi.ts        # 🟠 C
+│   │   └── investorApi.ts      # 🟣 D
+│   ├── screens/                # Role-owned screen stubs
+│   │   ├── shared/             # Splash, Onboarding, RoleSelect, Login, Signup
+│   │   ├── citizen/            # 🟢 A
+│   │   ├── organization/       # 🔵 B
+│   │   ├── worker/             # 🟠 C
+│   │   └── investor/           # 🟣 D
+│   ├── navigation/             # RootNavigator + one navigator per role
+│   ├── context/                # AppContext (i18n + auth state)
+│   ├── hooks/                  # useFetch
+│   ├── data/                   # roleConfig + country codes
+│   ├── theme/                  # role color tokens
+│   ├── utils/                  # date/currency/validator helpers
 │   └── components/
-│       ├── auth/
-│       │   ├── LoginSignupFlow.tsx
-│       │   └── CivicosMascot.tsx
-│       ├── dashboard/
-│       │   └── RoleDashboard.tsx
-│       └── ui/
-│           ├── aurora-background.tsx
-│           ├── location-picker.tsx
-│           └── snowfall.tsx
+│       ├── common/             # ScreenShell
+│       ├── auth/               # LoginSignupFlow, CivicosMascot
+│       ├── dashboard/          # RoleDashboard (demo hub)
+│       └── ui/                 # aurora-background, location-picker, snowfall
 ├── package.json
 ├── vite.config.ts
-├── tsconfig.json
 └── .env.example
 ```
+
+## Team Ownership (no merge conflicts)
+
+Each teammate owns exactly one role folder on both frontend and backend:
+
+| Role | Frontend | API client | Backend |
+|---|---|---|---|
+| 🟢 Citizen | `src/screens/citizen/` | `src/api/citizenApi.ts` | `backend/src/{controllers,routes}/citizen.*` |
+| 🔵 Organization | `src/screens/organization/` | `src/api/organizationApi.ts` | `backend/src/{controllers,routes}/organization.*` |
+| 🟠 Worker | `src/screens/worker/` | `src/api/workerApi.ts` | `backend/src/{controllers,routes}/worker.*` |
+| 🟣 Investor | `src/screens/investor/` | `src/api/investorApi.ts` | `backend/src/{controllers,routes}/investor.*` |
+
+Only shared files (`RootNavigator`, `App.tsx`, `AppContext`, models, `routes/index.ts`) need review from teammates.
 
 ## Features
 
@@ -152,6 +179,13 @@ civic-fix-2/
 | POST | `/api/auth/check-number` | Check if mobile number is registered |
 | POST | `/api/auth/send-otp` | Send WhatsApp OTP |
 | POST | `/api/auth/verify-otp` | Verify OTP and authenticate |
+| GET | `/api/reports` / `/api/reports/:id` | 🟢 Citizen reports (A) |
+| POST | `/api/reports` | Create a report w/ AI estimate (A) |
+| GET | `/api/reports/pending`, `/api/jobs`, `/api/bids` | 🔵 Organization (B) |
+| GET | `/api/jobs`, `/api/bids` · POST `/api/jobs/:jobId/bids` | 🟠 Worker (C) |
+| GET | `/api/investor/funded`, `/api/investor/impact` | 🟣 Investor (D) |
+
+> Role endpoints return mock data today so the app runs without MongoDB. Each owner replaces mocks with real DB queries in their controller.
 
 ## License
 

@@ -1,0 +1,6 @@
+{
+  "name": "Civic Fix",
+  "description": "Civic Fix - Civic Issue Resolution & Engagement Platform with WhatsApp OTP Verification",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
