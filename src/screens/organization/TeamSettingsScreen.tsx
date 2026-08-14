@@ -72,14 +72,23 @@ export const TeamSettingsScreen: React.FC<NavScreenProps> = ({ go }) => {
           <h1 className="text-xl font-bold text-white">Team & Access</h1>
           <p className="text-xs text-slate-400 mt-0.5">{members.length} staff members</p>
         </div>
-        <motion.button
-          whileTap={{ scale: 0.96 }}
-          onClick={() => setAdding((a) => !a)}
-          className="px-3.5 py-2 rounded-xl bg-blue-500/15 border border-blue-500/40 text-blue-300 text-xs font-bold flex items-center gap-1.5 hover:bg-blue-500/25 transition-colors"
-        >
-          {adding ? <X className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
-          {adding ? "Cancel" : "Add member"}
-        </motion.button>
+        <div className="flex items-center gap-2">
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => setAdding((a) => !a)}
+            className="px-3.5 py-2 rounded-xl bg-blue-500/15 border border-blue-500/40 text-blue-300 text-xs font-bold flex items-center gap-1.5 hover:bg-blue-500/25 transition-colors"
+          >
+            {adding ? <X className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
+            {adding ? "Cancel" : "Add member"}
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.96 }}
+            onClick={() => { logout(); navigate("/login"); }}
+            className="px-3.5 py-2 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs font-bold flex items-center gap-1.5 hover:bg-rose-500/20 transition-colors"
+          >
+            <LogOut className="w-3.5 h-3.5" /> Logout
+          </motion.button>
+        </div>
       </div>
 
       {/* Add member form */}
@@ -211,16 +220,6 @@ export const TeamSettingsScreen: React.FC<NavScreenProps> = ({ go }) => {
         className="w-full py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-sm font-bold hover:border-blue-500/40 transition-colors"
       >
         Open org settings →
-      </button>
-
-      <button
-        onClick={() => {
-          logout();
-          navigate("/login");
-        }}
-        className="w-full py-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm font-bold flex items-center justify-center gap-2 hover:bg-rose-500/20 transition-colors"
-      >
-        <LogOut className="w-4 h-4" /> Log out
       </button>
     </div>
   );
