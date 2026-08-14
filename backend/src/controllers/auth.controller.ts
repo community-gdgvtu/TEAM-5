@@ -195,7 +195,15 @@ export async function verifyOtp(req: Request, res: Response) {
         verifiedAt: new Date().toISOString(),
         createdAt: new Date().toISOString(),
       });
-      await user.save();
+      try {
+        await user.save();
+      } catch (err: any) {
+        if (err?.code === 11000 && userData.email) {
+          user = await UserModel.findOne({ email: userData.email }).lean();
+        } else {
+          throw err;
+        }
+      }
     } else if (user) {
       user.verifiedWhatsApp = true;
       user.verifiedAt = new Date().toISOString();

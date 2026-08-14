@@ -137,7 +137,7 @@ export const RedditFeed: React.FC<RedditFeedProps> = ({
     <div>
       {/* ===== r/CivicFix community header ===== */}
       <div className="overflow-hidden rounded-2xl border border-slate-800">
-        <div className="h-16 bg-gradient-to-r from-[#FF6A3D] via-[#00D9A3] to-[#a855f7] opacity-80" />
+        <div className="h-16 bg-gradient-to-r from-orange-600 via-emerald-500 to-indigo-500 opacity-60" />
         <div className="-mt-8 px-4 pb-4">
           <div className="flex items-end gap-3">
             <div className="w-16 h-16 rounded-2xl overflow-hidden border-4 border-slate-900 bg-slate-800">

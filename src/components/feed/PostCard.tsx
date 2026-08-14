@@ -78,7 +78,7 @@ export const PostCard: React.FC<{
           <CivicAvatar
             name={post.authorName}
             size={36}
-            className="w-9 h-9 shrink-0 ring-2 ring-white/10"
+            className="w-9 h-9 shrink-0"
             alt={post.authorName}
           />
           <div className="flex-1 min-w-0">
