@@ -9,11 +9,12 @@ import {
   getWallet,
   getWorkerProfile,
   getWorkerReviews,
+  getTaskHistory,
 } from "../controllers/worker.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 
 /**
- * 🟠 Worker routes. Mounted at /api/jobs, /api/bids.
+ * 🟠 Worker routes. Mounted at /api/jobs, /api/bids, /api/worker.
  * Read endpoints are open so the marketplace always renders in the demo;
  * write endpoints verify the session token.
  */
@@ -29,6 +30,7 @@ router.get("/jobs/active/all", getActiveJobs);
 router.get("/wallet", getWallet);
 router.get("/worker/profile", getWorkerProfile);
 router.get("/worker/reviews", getWorkerReviews);
+router.get("/worker/task-history", getTaskHistory);
 
 export default router;
 export { router as workerRouter };

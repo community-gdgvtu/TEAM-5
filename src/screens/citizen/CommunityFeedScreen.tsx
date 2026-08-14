@@ -3,6 +3,7 @@ import { Search, MapPin, TrendingUp } from "lucide-react";
 import { getFeedPosts } from "../../api/feedApi";
 import type { FeedPost } from "../../api/feedApi";
 import { NavScreenProps } from "../../navigation/types";
+import { CivicImg } from "../../components/common/CivicImg";
 
 const CATEGORIES = [
   { key: "all", label: "All" },
@@ -55,7 +56,7 @@ export const CommunityFeedScreen: React.FC<NavScreenProps> = ({ go }) => {
 
   const openPost = (p: FeedPost) => {
     const target = p.issueId || p.jobId || p.campaignId || p.id;
-    go?.("detail", { id: target });
+    go?.("tracking", { id: target });
   };
 
   return (
@@ -72,11 +73,8 @@ export const CommunityFeedScreen: React.FC<NavScreenProps> = ({ go }) => {
               onClick={() => openPost(p)}
               className="shrink-0 flex flex-col gap-1.5 w-28 text-left"
             >
-              <span
-                className="w-28 h-20 rounded-xl flex items-center justify-center text-3xl"
-                style={{ background: p.gradient || "linear-gradient(135deg,#334155,#1e293b)" }}
-              >
-                {p.emoji || "📍"}
+              <span className="w-28 h-20 rounded-xl overflow-hidden">
+                <CivicImg emoji={p.emoji} width={112} height={80} className="w-full h-full" alt={p.title} />
               </span>
               <span className="text-[10px] text-slate-300 line-clamp-2 leading-tight">{p.title}</span>
               <span className="text-[9px] text-emerald-400">▲ {p.likeCount}</span>
@@ -131,11 +129,8 @@ export const CommunityFeedScreen: React.FC<NavScreenProps> = ({ go }) => {
               onClick={() => openPost(p)}
               className="rounded-2xl bg-slate-800/40 border border-slate-700/40 overflow-hidden text-left hover:border-emerald-500/50 transition-colors"
             >
-              <span
-                className="w-full h-20 flex items-center justify-center text-3xl"
-                style={{ background: p.gradient || "linear-gradient(135deg,#334155,#1e293b)" }}
-              >
-                {p.emoji || "📍"}
+              <span className="block w-full h-20 overflow-hidden">
+                <CivicImg emoji={p.emoji} width={300} height={160} className="w-full h-full" alt={p.title} />
               </span>
               <span className="block p-2.5">
                 <span className="block text-[11px] font-semibold text-slate-100 leading-snug line-clamp-2">{p.title}</span>

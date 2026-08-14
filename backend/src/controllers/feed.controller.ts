@@ -4,6 +4,8 @@ import { isMongoConnected } from "../config/db";
 import {
   getFeedPosts,
   getFeedPostById,
+  getWorkThread,
+  workKeyOf,
   createFeedPost,
   getFallbackStream,
   FeedPostInput,
@@ -47,6 +49,10 @@ function serialize(post: any): any {
     jobId: post.jobId || null,
     campaignId: post.campaignId || null,
     beforeAfter: post.beforeAfter || null,
+    photoUrl: post.photoUrl || null,
+    taggedWorker: post.taggedWorker || null,
+    qualityScore: post.qualityScore ?? null,
+    locationTag: post.locationTag || null,
     createdAt: post.createdAt || new Date().toISOString(),
   };
 }
@@ -58,6 +64,26 @@ export async function getFeed(req: Request, res: Response) {
   } catch (err) {
     console.error("[FEED] getFeed:", err);
     return res.status(500).json({ error: "Failed to load feed." });
+  }
+}
+
+export async function getWorkTracking(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const { work, related } = await getWorkThread(id);
+    if (!work) return res.status(404).json({ error: "Work not found." });
+    const taggedWorkers = [...new Set(
+      [work, ...related].map((p) => p.taggedWorker).filter(Boolean) as string[]
+    )];
+    return res.json({
+      work: serialize(work),
+      related: related.map(serialize),
+      taggedWorkers,
+      workKey: workKeyOf(work),
+    });
+  } catch (err) {
+    console.error("[FEED] getWorkTracking:", err);
+    return res.status(500).json({ error: "Failed to load tracking." });
   }
 }
 

@@ -1,6 +1,6 @@
 import { Schema, model } from "mongoose";
 
-export type PostType = "issue" | "job" | "completed" | "campaign";
+export type PostType = "issue" | "job" | "completed" | "campaign" | "failed";
 export type PostAuthorRole = "citizen" | "organization" | "worker" | "investor";
 
 export interface IPostComment {
@@ -44,6 +44,11 @@ export interface IPost {
   campaignId?: string;
   beforeAfter?: { before: string; after: string };
   createdAt: string;
+  /** Citizen uploads — real photo, tagged worker, quality tracking. */
+  photoUrl?: string;
+  taggedWorker?: string;
+  qualityScore?: number;
+  locationTag?: { city: string; state: string; country: string };
 }
 
 const PostCommentSchema: Schema = new Schema(
@@ -63,7 +68,7 @@ const PostCommentSchema: Schema = new Schema(
 const PostSchema: Schema = new Schema(
   {
     id: { type: String, required: true, unique: true },
-    type: { type: String, required: true, enum: ["issue", "job", "completed", "campaign"], index: true },
+    type: { type: String, required: true, enum: ["issue", "job", "completed", "campaign", "failed"], index: true },
     title: { type: String, required: true },
     caption: { type: String, default: "" },
     category: { type: String, default: "General" },
@@ -90,6 +95,10 @@ const PostSchema: Schema = new Schema(
     jobId: { type: String },
     campaignId: { type: String },
     beforeAfter: { before: String, after: String },
+    photoUrl: { type: String },
+    taggedWorker: { type: String },
+    qualityScore: { type: Number },
+    locationTag: { city: String, state: String, country: String },
     createdAt: { type: String, default: () => new Date().toISOString(), index: true },
   },
   { timestamps: true }

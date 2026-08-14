@@ -78,7 +78,18 @@ export async function getIssueDetail(req: Request, res: Response) {
 
 export async function createReport(req: Request, res: Response) {
   try {
-    const { issueType, description, photoUrl, location } = req.body || {};
+    const {
+      issueType,
+      description,
+      photoUrl,
+      location,
+      postType = "issue",
+      taggedWorker,
+      hashtags,
+      title,
+      qualityScore,
+      userEstimate,
+    } = req.body || {};
     const userId = (req as any).userId;
 
     const aiEstimate = await estimateCost({ photoUrl: photoUrl || "", issueType: issueType || "pothole", description });
@@ -91,17 +102,38 @@ export async function createReport(req: Request, res: Response) {
       photoUrl,
       location: location || { city: "Mumbai", state: "Maharashtra", country: "India" },
       aiEstimate,
-      status: "Reported",
+      userEstimate: userEstimate ?? null,
+      status: postType === "failed" ? "Rejected" : postType === "completed" ? "Done" : "Reported",
     };
 
     const city = report.location.city || "site";
     const postInput: FeedPostInput = {
-      type: "issue",
-      title: `${report.issueType.charAt(0).toUpperCase()}${report.issueType.slice(1)} reported on ${city}`,
+      type: postType === "completed" ? "completed" : postType === "failed" ? "failed" : "issue",
+      title:
+        title ||
+        (postType === "completed"
+          ? `${report.issueType.charAt(0).toUpperCase()}${report.issueType.slice(1)} fixed — Work Done on ${city}`
+          : postType === "failed"
+            ? `${report.issueType.charAt(0).toUpperCase()}${report.issueType.slice(1)} not fixed — Work Failed on ${city}`
+            : `${report.issueType.charAt(0).toUpperCase()}${report.issueType.slice(1)} reported on ${city}`),
       caption: report.description,
       category: report.issueType,
-      emoji: report.issueType === "pothole" ? "🕳️" : report.issueType === "streetlight" ? "💡" : "🛠️",
-      gradient: "linear-gradient(135deg,#f97316,#ef4444)",
+      emoji:
+        report.issueType === "pothole"
+          ? "🕳️"
+          : report.issueType === "streetlight"
+            ? "💡"
+            : report.issueType === "tree"
+              ? "🌳"
+              : postType === "failed"
+                ? "⚠️"
+                : "🛠️",
+      gradient:
+        postType === "completed"
+          ? "linear-gradient(135deg,#22c55e,#0d9488)"
+          : postType === "failed"
+            ? "linear-gradient(135deg,#ef4444,#b91c1c)"
+            : "linear-gradient(135deg,#f97316,#ef4444)",
       authorId: report.reporterId,
       authorName: (req as any).userName || "You",
       authorAvatar: "🧑",
@@ -109,11 +141,17 @@ export async function createReport(req: Request, res: Response) {
       authorVerified: true,
       area: city,
       location: `${report.location.city || ""}, ${report.location.state || ""}`.replace(/^,\s*/, "") || "India",
-      amount: aiEstimate?.amount,
-      status: "Pending review",
+      amount: aiEstimate?.amount ?? userEstimate ?? undefined,
+      status: postType === "completed" ? "Completed" : postType === "failed" ? "Work Failed" : "Pending review",
       urgency: aiEstimate?.severity === "Critical" ? "High" : aiEstimate?.severity === "Minor" ? "Low" : "Medium",
-      hashtags: ["#CitizenReported", "#FixIt"],
+      hashtags: hashtags?.length
+        ? hashtags
+        : ["#CitizenReported", "#FixIt"].concat(postType === "failed" ? ["#WorkFailed"] : postType === "completed" ? ["#WorkDone"] : []),
       issueId: report.id,
+      photoUrl,
+      taggedWorker,
+      qualityScore,
+      locationTag: location,
     };
 
     if (!isMongoConnected()) {

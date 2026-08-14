@@ -5,6 +5,11 @@ export type AppRole = "citizen" | "organization" | "worker" | "investor";
 
 const ROLES: AppRole[] = ["citizen", "organization", "worker", "investor"];
 
+/** Short-form URL aliases → canonical role (e.g. /org/reports). */
+const ROLE_ALIAS: Record<string, AppRole> = {
+  org: "organization",
+};
+
 export interface AppRoute {
   kind: "landing" | "login" | "role";
   role?: AppRole;
@@ -14,7 +19,7 @@ export interface AppRoute {
 /** The section a role lands on when only the role is in the URL. */
 export const ROLE_DEFAULT_SECTION: Record<AppRole, string> = {
   citizen: "dashboard",
-  organization: "reports",
+  organization: "dashboard",
   worker: "marketplace",
   investor: "discover",
 };
@@ -22,7 +27,7 @@ export const ROLE_DEFAULT_SECTION: Record<AppRole, string> = {
 /** Valid `/:role/:section` paths — one per bottom-tab in each navigator. */
 export const VALID_SECTIONS: Record<AppRole, string[]> = {
   citizen: ["dashboard", "search", "report", "messages", "profile"],
-  organization: ["reports", "jobs", "analytics", "messages", "team"],
+  organization: ["dashboard", "reports", "jobs", "analytics", "messages", "team"],
   worker: ["marketplace", "jobs", "wallet", "messages", "profile"],
   investor: ["discover", "portfolio", "analytics", "messages", "settings"],
 };
@@ -32,7 +37,7 @@ export function parseRoute(pathname: string): AppRoute {
   const segs = pathname.split("/").filter(Boolean);
   if (segs.length === 0) return { kind: "landing" };
   if (segs[0] === "login") return { kind: "login" };
-  const role = segs[0] as AppRole;
+  const role = ROLE_ALIAS[segs[0]] ?? (segs[0] as AppRole);
   if (ROLES.includes(role)) {
     const section = VALID_SECTIONS[role].includes(segs[1]) ? segs[1] : ROLE_DEFAULT_SECTION[role];
     return { kind: "role", role, section };

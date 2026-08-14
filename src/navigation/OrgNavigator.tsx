@@ -14,6 +14,8 @@ import { WorkerDirectoryScreen } from "../screens/organization/WorkerDirectorySc
 import { AnalyticsScreen } from "../screens/organization/AnalyticsScreen";
 import { TeamSettingsScreen } from "../screens/organization/TeamSettingsScreen";
 import { SettingsScreen } from "../screens/organization/SettingsScreen";
+import { LeaderboardScreen } from "../screens/shared/LeaderboardScreen";
+import { WorkTrackingScreen } from "../screens/shared/WorkTrackingScreen";
 import { MessagesScreen } from "../components/messages/MessagesScreen";
 import { useRouter } from "../router";
 
@@ -26,6 +28,7 @@ const TAB_ROOT: Record<OrgTab, string> = {
 };
 
 const SECTION_TO_TAB: Record<string, OrgTab> = {
+  dashboard: "reports",
   reports: "reports",
   jobs: "jobs",
   analytics: "analytics",
@@ -39,6 +42,13 @@ const TAB_TO_SECTION: Record<OrgTab, string> = {
   analytics: "analytics",
   messages: "messages",
   team: "team",
+};
+
+/** URL section → the stack root it should render (dashboard is its own screen). */
+const sectionRoot = (sec?: string): { tab: OrgTab; root: string } => {
+  if (sec === "dashboard") return { tab: "reports", root: "dashboard" };
+  const tab = SECTION_TO_TAB[sec ?? "dashboard"] ?? "reports";
+  return { tab, root: TAB_ROOT[tab] };
 };
 
 /**
@@ -56,6 +66,8 @@ const ORG_SCREENS: Record<string, React.FC<NavScreenProps>> = {
   analytics: AnalyticsScreen,
   team: TeamSettingsScreen,
   settings: SettingsScreen,
+  leaderboard: (props: NavScreenProps) => <LeaderboardScreen {...props} role="organization" />,
+  tracking: (props: NavScreenProps) => <WorkTrackingScreen {...props} role="organization" />,
 };
 
 /** Screen transition variants (respects reduced motion via CSS). */
@@ -84,17 +96,17 @@ export const OrgNavigator: React.FC<{ section?: string }> = ({ section }) => {
   const { navigate } = useRouter();
   const pendingCount = pending?.length ?? 0;
 
-  const [activeTab, setActiveTab] = useState<OrgTab>(() => SECTION_TO_TAB[section ?? "reports"] ?? "reports");
+  const [activeTab, setActiveTab] = useState<OrgTab>(() => sectionRoot(section).tab);
   const [stack, setStack] = useState<{ name: string; params?: NavParams }[]>([
-    { name: "reports" },
+    { name: sectionRoot(section).root },
   ]);
   const [direction, setDirection] = useState(0);
 
   useEffect(() => {
-    const tab = SECTION_TO_TAB[section ?? "reports"];
-    if (tab && tab !== activeTab) {
-      setActiveTab(tab);
-      setStack([{ name: TAB_ROOT[tab] }]);
+    const next = sectionRoot(section);
+    if (next.tab !== activeTab) {
+      setActiveTab(next.tab);
+      setStack([{ name: next.root }]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [section]);
@@ -111,9 +123,10 @@ export const OrgNavigator: React.FC<{ section?: string }> = ({ section }) => {
     setActiveTab(t);
     setDirection(1);
     setStack([{ name: TAB_ROOT[t] }]);
-    navigate(`/org/${TAB_TO_SECTION[t]}`);
+    navigate(`/organization/${TAB_TO_SECTION[t]}`);
   };
   const onSettings = () => go("settings");
+  const onHome = () => navigate("/organization/dashboard");
 
   const current = stack[stack.length - 1];
   const showBack = stack.length > 1;
@@ -132,6 +145,8 @@ export const OrgNavigator: React.FC<{ section?: string }> = ({ section }) => {
       onTab={onTab}
       onBack={showBack ? back : undefined}
       onSettings={onSettings}
+      onHome={onHome}
+      onLeaderboard={() => go("leaderboard")}
       pendingCount={pendingCount}
     >
       <AnimatePresence mode="popLayout" initial={false} custom={direction}>

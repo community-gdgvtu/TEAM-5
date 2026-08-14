@@ -19,6 +19,7 @@ export interface IIssue {
     confidence: number;
     summary: string;
   };
+  userEstimate?: number | null;
   status: string; // Reported | Verified | Funding | InProgress | Done
   createdAt: string;
   /** Org role — presentation fields (additive, optional). */
@@ -58,6 +59,7 @@ const IssueSchema: Schema = new Schema(
       confidence: Number,
       summary: String,
     },
+    userEstimate: { type: Number },
     status: { type: String, default: "Reported" },
     title: { type: String },
     category: { type: String },

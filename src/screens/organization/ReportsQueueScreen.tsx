@@ -152,8 +152,8 @@ export const ReportsQueueScreen: React.FC<NavScreenProps> = ({ go }) => {
                 className={`w-16 h-16 rounded-full p-[2.5px] ${active ? "ring-2 ring-blue-400 ring-offset-2 ring-offset-[#0b0f14]" : ""}`}
                 style={{ background: s.gradient }}
               >
-                <span className="flex w-full h-full rounded-full bg-slate-900 items-center justify-center text-2xl">
-                  {s.emoji}
+                <span className="block w-full h-full rounded-full overflow-hidden">
+                  <CivicImg emoji={s.emoji} width={64} height={64} className="w-full h-full rounded-full" alt={s.label} />
                 </span>
               </span>
               <span className="text-[10px] font-semibold text-slate-200">{s.label}</span>

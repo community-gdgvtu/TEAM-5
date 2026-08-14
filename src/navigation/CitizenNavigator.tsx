@@ -8,6 +8,11 @@ import { MyReportsScreen } from "../screens/citizen/MyReportsScreen";
 import { IssueDetailScreen } from "../screens/citizen/IssueDetailScreen";
 import { CitizenProfileScreen } from "../screens/citizen/CitizenProfileScreen";
 import { CommunityFeedScreen } from "../screens/citizen/CommunityFeedScreen";
+import { CostEstimateScreen } from "../screens/citizen/CostEstimateScreen";
+import { DonateScreen } from "../screens/citizen/DonateScreen";
+import { NotificationsScreen } from "../screens/citizen/NotificationsScreen";
+import { LeaderboardScreen } from "../screens/shared/LeaderboardScreen";
+import { WorkTrackingScreen } from "../screens/shared/WorkTrackingScreen";
 import { MessagesScreen } from "../components/messages/MessagesScreen";
 import { useRouter } from "../router";
 
@@ -110,13 +115,31 @@ export const CitizenNavigator: React.FC<{ section?: string }> = ({ section }) =>
         return <IssueDetailScreen {...props} />;
       case "profile":
         return <CitizenProfileScreen {...props} />;
+      case "leaderboard":
+        return <LeaderboardScreen {...props} role="citizen" />;
+      case "tracking":
+        return <WorkTrackingScreen {...props} role="citizen" />;
+      case "notifications":
+        return <NotificationsScreen {...props} />;
+      case "estimate":
+        return <CostEstimateScreen {...props} />;
+      case "campaign-confirm":
+        return <FeedScreen {...props} role="citizen" />;
+      case "donate":
+        return <DonateScreen {...props} />;
       default:
         return <FeedScreen {...props} role="citizen" />;
     }
   };
 
   return (
-    <CitizenShell active={activeTab} onTab={onTab} onBack={showBack ? back : undefined}>
+    <CitizenShell
+      active={activeTab}
+      onTab={onTab}
+      onBack={showBack ? back : undefined}
+      onLeaderboard={() => go("leaderboard")}
+      onNotifications={() => go("notifications")}
+    >
       <AnimatePresence mode="popLayout" initial={false} custom={direction}>
         <motion.div
           key={current.name + (current.params?.id ?? "")}

@@ -1,5 +1,5 @@
 import React from "react";
-import { Compass, LayoutGrid, BarChart3, MessageCircle, Settings, ArrowLeft, Bell } from "lucide-react";
+import { Compass, LayoutGrid, MessageCircle, Settings, ArrowLeft, Bell, Trophy } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 
 export type InvestorTab = "discover" | "portfolio" | "analytics" | "messages" | "settings";
@@ -7,19 +7,18 @@ export type InvestorTab = "discover" | "portfolio" | "analytics" | "messages" | 
 const TABS: { key: InvestorTab; icon: React.ElementType; label: string }[] = [
   { key: "discover", icon: Compass, label: "Discover" },
   { key: "portfolio", icon: LayoutGrid, label: "Portfolio" },
-  { key: "analytics", icon: BarChart3, label: "Analytics" },
+  { key: "analytics", label: "Analytics", icon: MessageCircle },
   { key: "messages", icon: MessageCircle, label: "Messages" },
   { key: "settings", icon: Settings, label: "Settings" },
 ];
-
-const ACCENT = "#a855f7";
 
 export const InvestorShell: React.FC<{
   active: InvestorTab;
   onTab: (t: InvestorTab) => void;
   onBack?: () => void;
+  onLeaderboard?: () => void;
   children: React.ReactNode;
-}> = ({ active, onTab, onBack, children }) => {
+}> = ({ active, onTab, onBack, onLeaderboard, children }) => {
   const { currentUser } = useApp();
   const initials = (currentUser?.name || "IV")
     .split(" ")
@@ -34,8 +33,8 @@ export const InvestorShell: React.FC<{
         {/* Top bar */}
         <header className="sticky top-0 z-20 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/60 px-4 py-3 flex items-center gap-3">
           {onBack ? (
-            <button onClick={onBack} className="text-slate-300 hover:text-white" aria-label="Back">
-              <ArrowLeft className="w-5 h-5" />
+            <button onClick={onBack} className="text-slate-300 hover:text-white transition-colors" aria-label="Back">
+              <ArrowLeft className="w-4 h-4" />
             </button>
           ) : (
             <span className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-600 flex items-center justify-center text-sm font-bold text-white">
@@ -46,40 +45,44 @@ export const InvestorShell: React.FC<{
             <span className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-purple-400 to-fuchsia-400 bg-clip-text text-transparent">
               Civic Fix
             </span>
-            <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
+            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-300 border border-purple-500/30">
               Investor
             </span>
           </div>
-          <button className="text-slate-300 hover:text-white" aria-label="Notifications">
-            <Bell className="w-5 h-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={onLeaderboard} className="text-slate-300 hover:text-white transition-colors" aria-label="Leaderboard" title="Leaderboard">
+              <Trophy className="w-4 h-4" />
+            </button>
+            <button className="text-slate-300 hover:text-white" aria-label="Notifications">
+              <Bell className="w-4 h-4" />
+            </button>
+          </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto pb-24">{children}</main>
+        <main className="flex-1 overflow-y-auto pb-12">{children}</main>
 
-        {/* Bottom tab bar */}
-        <nav className="fixed bottom-0 inset-x-0 z-20 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/60">
-          <div className="max-w-md mx-auto grid grid-cols-5">
+        {/* Bottom tab bar — Discord-inspired */}
+        <nav className="border-t border-slate-700/50 px-4 py-1.5 fixed bottom-0 left-0 right-0 z-20 bg-slate-950/90 backdrop-blur-sm">
+          <div className="max-w-md mx-auto flex flex-col sm:flex-row justify-center items-center gap-1">
             {TABS.map((t) => {
               const Icon = t.icon;
               const isActive = active === t.key;
+              const tabClass = isActive
+                ? "flex-1 rounded-md px-1.5 py-1 text-xs font-medium text-white transition-colors bg-purple-600"
+                : "flex-1 rounded-md px-1.5 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800/50 transition-colors";
               return (
                 <button
                   key={t.key}
                   onClick={() => onTab(t.key)}
-                  className="flex flex-col items-center justify-center py-2.5 gap-0.5"
+                  className={tabClass}
                   aria-label={t.label}
                 >
                   <Icon
-                    className="w-5 h-5"
-                    style={{ color: isActive ? ACCENT : "#94a3b8" }}
-                    strokeWidth={isActive ? 2.4 : 1.8}
+                    className="w-4.5 h-4.5 mb-0.5"
+                    style={{ color: isActive ? "#fff" : "#94a3b8" }}
                   />
-                  <span
-                    className="text-[9px] font-medium"
-                    style={{ color: isActive ? ACCENT : "#94a3b8" }}
-                  >
+                  <span className="text-[7px] font-medium">
                     {t.label}
                   </span>
                 </button>

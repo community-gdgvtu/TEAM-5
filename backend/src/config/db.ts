@@ -40,6 +40,9 @@ interface UserRecord {
   verifiedWhatsApp: boolean;
   verifiedAt: string;
   createdAt: string;
+  googleId?: string;
+  authProvider?: "google" | "whatsapp";
+  avatarUrl?: string;
 }
 
 const usersDb: Map<string, UserRecord> = new Map([
@@ -81,6 +84,62 @@ const usersDb: Map<string, UserRecord> = new Map([
   ],
 ]);
 
+// Canonical demo accounts mirrored from src/router.tsx `demoUserForRole` so the
+// auto-login demo tokens (`civicfix_session_<id>_<ts>`) authenticate even when
+// MongoDB is offline. Keys are phone numbers so findOne({mobile}) still works.
+function seedInMemoryDemoUsers() {
+  const now = new Date().toISOString();
+  const seed: UserRecord[] = [
+    {
+      id: "org_mumbai_001",
+      name: "Brihanmumbai Municipal Corporation",
+      mobile: "9876500002",
+      countryCode: "+91",
+      email: "operations@municipal.gov",
+      age: 34,
+      location: { city: "Mumbai", state: "Maharashtra", country: "India" },
+      role: "organization",
+      supplementaryData: { organizationRegId: "MC-MUM-2026-99", organizationType: "Municipal Corporation" },
+      verifiedWhatsApp: true,
+      verifiedAt: now,
+      createdAt: now,
+    },
+    {
+      id: "user_demo_worker_001",
+      name: "Rahul Deshmukh",
+      mobile: "9876500003",
+      countryCode: "+91",
+      email: "rahul.works@contractor.in",
+      age: 31,
+      location: { city: "Bengaluru", state: "Karnataka", country: "India" },
+      role: "worker",
+      supplementaryData: { workerSkillCategory: "Sanitation & Drainage", workerLicenseId: "TR-5582910" },
+      verifiedWhatsApp: true,
+      verifiedAt: now,
+      createdAt: now,
+    },
+    {
+      id: "user_demo_investor_001",
+      name: "Nikhil Rao",
+      mobile: "9876500004",
+      countryCode: "+91",
+      email: "nikhil.rao@invest.in",
+      age: 30,
+      location: { city: "Mumbai", state: "Maharashtra", country: "India" },
+      role: "investor",
+      supplementaryData: { investorEntityName: "Nikhil Rao Capital", investorKycStatus: "Verified Individual" },
+      verifiedWhatsApp: true,
+      verifiedAt: now,
+      createdAt: now,
+    },
+  ];
+  for (const u of seed) {
+    const key = `${u.mobile}_${u.countryCode}`;
+    if (!usersDb.has(key)) usersDb.set(key, u);
+  }
+}
+seedInMemoryDemoUsers();
+
 /** Mimics the Mongoose User interface so controllers stay Mongo-agnostic. */
 function buildInMemoryUser(user: UserRecord, forLean = false) {
   const shape = {
@@ -97,6 +156,9 @@ function buildInMemoryUser(user: UserRecord, forLean = false) {
     verifiedAt: user.verifiedAt,
     createdAt: user.createdAt,
     supplementaryData: user.supplementaryData,
+    googleId: user.googleId || "",
+    authProvider: user.authProvider || "whatsapp",
+    avatarUrl: user.avatarUrl || "",
   };
   if (!forLean) {
     (shape as any).save = async () => {};
@@ -106,6 +168,36 @@ function buildInMemoryUser(user: UserRecord, forLean = false) {
 
 const InMemoryUserModel = {
   findOne: (query: any) => {
+    // Support $or queries (used by Google auth: find by googleId OR email)
+    if (query && query.$or && Array.isArray(query.$or)) {
+      for (const condition of query.$or) {
+        if (condition.googleId) {
+          const found = [...usersDb.values()].find((u) => u.googleId === condition.googleId);
+          if (found) {
+            const shape = buildInMemoryUser(found);
+            return { ...shape, lean: () => shape };
+          }
+        }
+        if (condition.email) {
+          const found = [...usersDb.values()].find((u) => u.email === condition.email.toLowerCase());
+          if (found) {
+            const shape = buildInMemoryUser(found);
+            return { ...shape, lean: () => shape };
+          }
+        }
+      }
+      return null;
+    }
+    // Support both phone-based lookups (auth controller) and id lookups (auth/role middleware).
+    if (query && query.id) {
+      const byId = [...usersDb.values()].find((u) => u.id === query.id);
+      if (!byId) return null;
+      const shape = buildInMemoryUser(byId);
+      return {
+        ...shape,
+        lean: () => shape,
+      };
+    }
     const phoneKey = `${query.mobile || query.nationalDigits || ""}_${query.countryCode || ""}`;
     const user = usersDb.get(phoneKey);
     if (!user) return null;
@@ -130,6 +222,9 @@ const InMemoryUserModel = {
       verifiedWhatsApp: true,
       verifiedAt: new Date().toISOString(),
       createdAt: new Date().toISOString(),
+      googleId: data.googleId || "",
+      authProvider: data.authProvider || "whatsapp",
+      avatarUrl: data.avatarUrl || "",
     };
     usersDb.set(`${data.mobile || ""}_${data.countryCode || "+91"}`, user);
     return buildInMemoryUser(user);

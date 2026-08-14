@@ -18,8 +18,10 @@ import {
   X,
   ChevronsLeftRight,
   Quote,
+  Trophy,
 } from "lucide-react";
 import { useRouter } from "../../router";
+import { CivicImg, CivicAvatar } from "../common/CivicImg";
 
 export interface LandingPageProps {
   onSignIn: () => void;
@@ -116,33 +118,52 @@ const STEPS = [
   {
     icon: Camera,
     num: "01",
+    photo: "🕳️",
     title: "Report it",
     desc: "Snap the pothole, broken light or choked drain and drop a pin. It lands on your neighbourhood's feed in seconds.",
   },
   {
     icon: Search,
     num: "02",
+    photo: "🤖",
     title: "AI prices it",
     desc: "Our AI scopes the damage and estimates the repair cost instantly — an escrow is created on the spot.",
   },
   {
     icon: HandCoins,
     num: "03",
+    photo: "🤝",
     title: "Neighbours fund it",
     desc: "Residents, municipal bodies and investors pool micro-donations. Funded campaigns unlock the job.",
   },
   {
     icon: Wrench,
     num: "04",
+    photo: "🔨",
     title: "Worker fixes it, AI checks it",
     desc: "A verified local worker repairs it. AI compares before/after photos — only then is the payout released.",
   },
+  {
+    icon: Trophy,
+    num: "05",
+    photo: "🏆",
+    title: "AI scores it, everyone climbs",
+    desc: "AI grades every repair against reviews and awards points — a city-wide leaderboard of citizens, workers, funders and fixes.",
+  },
+];
+
+/** Mini leaderboard shown inside the how-it-works reward step. */
+const REWARD_BOARD = [
+  { name: "Ananya Sharma", role: "Reporter", pts: 1240, emoji: "🥇" },
+  { name: "Rahul Deshmukh", role: "Worker", pts: 1105, emoji: "🥈" },
+  { name: "Nikhil Rao", role: "Funder", pts: 940, emoji: "🥉" },
 ];
 
 const ROLES = [
   {
     key: "citizen",
     icon: UserCheck,
+    photo: "📸",
     title: "Citizen",
     pitch: "See something broken? Report it in seconds.",
     bullets: ["One-tap photo reports", "Track your fix to completion", "Community leaderboards"],
@@ -151,6 +172,7 @@ const ROLES = [
   {
     key: "organization",
     icon: Building2,
+    photo: "🏛️",
     title: "Organization",
     pitch: "Turn reports into verified work orders.",
     bullets: ["AI triage of your queue", "Push repairs to the local market", "Public proof of every rupee"],
@@ -159,6 +181,7 @@ const ROLES = [
   {
     key: "worker",
     icon: HardHat,
+    photo: "🔨",
     title: "Worker",
     pitch: "Get paid for fixing your own street.",
     bullets: ["Claim verified jobs nearby", "Escrow-backed payouts", "Build a verifiable reputation"],
@@ -167,6 +190,7 @@ const ROLES = [
   {
     key: "investor",
     icon: TrendingUp,
+    photo: "🌉",
     title: "Investor",
     pitch: "Fund the fixes that actually move the needle.",
     bullets: ["Vetted infrastructure campaigns", "AI-verified completion", "Real-time impact analytics"],
@@ -223,113 +247,56 @@ const STORIES = [
   },
 ];
 
+const PHOTO_WALL = [
+  { emoji: "🕳️", tag: "Pothole · Sector 22", badge: "✓ Fixed", tone: "bg-verified text-asphalt", sub: "₹42,500 escrowed → released" },
+  { emoji: "💡", tag: "Streetlight · G-14", badge: "In progress", tone: "bg-sand text-asphalt", sub: "₹8,200 of ₹9,000 funded", tall: true },
+  { emoji: "🔨", tag: "Drain de-clogging · Sinhagad Rd", badge: "Claimed", tone: "bg-safety text-white", sub: "Worker on site · 12:40" },
+  { emoji: "📸", tag: "Footpath tiles replaced", badge: "✓ AI verified", tone: "bg-verified text-asphalt", sub: "Before/after match · 94%", tall: true },
+  { emoji: "🌳", tag: "Garden refurb", badge: "Funded", tone: "bg-sand text-asphalt", sub: "312 neighbours chipped in" },
+  { emoji: "🌉", tag: "Bridge lighting", badge: "Campaign live", tone: "bg-safety text-white", sub: "₹1.2L of ₹2.0L raised" },
+];
+
 /* =====================================================================
-   Before / After drag slider (signature element)
+   Before / After drag slider — real photos, auto-cycling scenarios
    ===================================================================== */
 
-const BeforeScene: React.FC = () => (
-  <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden>
-    <defs>
-      <linearGradient id="b-sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#1c2733" />
-        <stop offset="1" stopColor="#10161d" />
-      </linearGradient>
-    </defs>
-    <rect width="400" height="240" fill="url(#b-sky)" />
-    {/* city silhouette */}
-    <g fill="#0c1117">
-      <rect x="20" y="120" width="34" height="80" />
-      <rect x="60" y="142" width="26" height="58" />
-      <rect x="90" y="110" width="40" height="90" />
-      <rect x="135" y="136" width="24" height="64" />
-      <rect x="298" y="126" width="30" height="74" />
-      <rect x="334" y="142" width="38" height="58" />
-    </g>
-    {/* road */}
-    <rect x="0" y="180" width="400" height="60" fill="#1a2129" />
-    <rect x="0" y="180" width="400" height="4" fill="#0c1117" />
-    {/* pothole + cracks */}
-    <ellipse cx="150" cy="206" rx="46" ry="16" fill="#0a0e13" />
-    <ellipse cx="150" cy="206" rx="33" ry="11" fill="#06090d" />
-    <g stroke="#0a0e13" strokeWidth="2" fill="none">
-      <path d="M203 206 l24 -6 l15 4" />
-      <path d="M97 206 l-21 -8" />
-      <path d="M186 195 l11 -13" />
-      <path d="M121 193 l-9 -15" />
-    </g>
-    {/* broken streetlight */}
-    <g>
-      <rect x="52" y="120" width="6" height="62" rx="2" fill="#2a3644" />
-      <path d="M58 126 l34 -10" stroke="#2a3644" strokeWidth="6" strokeLinecap="round" />
-      <rect x="82" y="106" width="20" height="10" rx="3" fill="#1a232e" transform="rotate(-24 92 111)" />
-    </g>
-    {/* warning cone */}
-    <g>
-      <polygon points="300,208 310,190 320,208" fill="#FF6A3D" />
-      <polygon points="306,200 310,190 314,200" fill="#f3f0e9" />
-      <rect x="304" y="208" width="22" height="5" rx="2" fill="#FF6A3D" />
-    </g>
-  </svg>
-);
-
-const AfterScene: React.FC = () => (
-  <svg viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" className="absolute inset-0 h-full w-full" aria-hidden>
-    <defs>
-      <linearGradient id="a-sky" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#12242e" />
-        <stop offset="1" stopColor="#0f1b24" />
-      </linearGradient>
-      <radialGradient id="lamp-glow" cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0" stopColor="#F4C77B" stopOpacity="0.95" />
-        <stop offset="0.45" stopColor="#FF6A3D" stopOpacity="0.55" />
-        <stop offset="1" stopColor="#FF6A3D" stopOpacity="0" />
-      </radialGradient>
-      <radialGradient id="patch-glow" cx="0.5" cy="0.5" r="0.5">
-        <stop offset="0" stopColor="#00D9A3" stopOpacity="0.5" />
-        <stop offset="1" stopColor="#00D9A3" stopOpacity="0" />
-      </radialGradient>
-    </defs>
-    <rect width="400" height="240" fill="url(#a-sky)" />
-    {/* city silhouette */}
-    <g fill="#0c151c">
-      <rect x="20" y="120" width="34" height="80" />
-      <rect x="60" y="142" width="26" height="58" />
-      <rect x="90" y="110" width="40" height="90" />
-      <rect x="135" y="136" width="24" height="64" />
-      <rect x="298" y="126" width="30" height="74" />
-      <rect x="334" y="142" width="38" height="58" />
-    </g>
-    {/* road */}
-    <rect x="0" y="180" width="400" height="60" fill="#16212c" />
-    <rect x="0" y="180" width="400" height="4" fill="#0c1117" />
-    {/* repaired patch */}
-    <ellipse cx="150" cy="206" rx="50" ry="18" fill="#101a22" />
-    <ellipse cx="150" cy="206" rx="44" ry="14" fill="#1b2733" stroke="#2c3e4e" strokeWidth="1.5" />
-    <ellipse cx="150" cy="206" rx="40" ry="12" fill="url(#patch-glow)" />
-    {/* fixed streetlight with glow */}
-    <circle cx="88" cy="112" r="46" fill="url(#lamp-glow)" />
-    <g>
-      <rect x="52" y="120" width="6" height="62" rx="2" fill="#38485a" />
-      <path d="M58 126 l34 -10" stroke="#38485a" strokeWidth="6" strokeLinecap="round" />
-      <path d="M82 106 l6 12 -22 0 z" fill="#F4C77B" />
-      <rect x="78" y="100" width="20" height="12" rx="4" fill="#4a5d70" />
-      <circle cx="88" cy="106" r="3.5" fill="#FFF7E6" />
-    </g>
-    {/* sapling */}
-    <g>
-      <rect x="316" y="196" width="4" height="14" rx="2" fill="#2a3644" />
-      <circle cx="318" cy="194" r="8" fill="#00D9A3" opacity="0.85" />
-      <circle cx="311" cy="198" r="6" fill="#0f3d33" />
-    </g>
-    {/* soft sand light pool on road */}
-    <ellipse cx="88" cy="206" rx="52" ry="10" fill="#F4C77B" opacity="0.08" />
-  </svg>
-);
+const SCENARIOS = [
+  {
+    key: "pothole",
+    beforeEmoji: "🕳️",
+    afterEmoji: "🛣️",
+    label: "Pothole",
+    place: "Sector 22, Gurugram",
+    status: "Fixed · AI match 94%",
+    detail: "Patched in 6 days · ₹42,500 released",
+  },
+  {
+    key: "streetlight",
+    beforeEmoji: "💡",
+    afterEmoji: "🌃",
+    label: "Streetlight",
+    place: "G-14, Mumbai",
+    status: "Fixed · AI match 91%",
+    detail: "Relit in 2 days · ₹8,200 funded",
+  },
+  {
+    key: "drain",
+    beforeEmoji: "💧",
+    afterEmoji: "🏞️",
+    label: "Choked drain",
+    place: "Sinhagad Rd, Pune",
+    status: "Fixed · AI match 96%",
+    detail: "De-clogged in 4 days · ₹12,000 funded",
+  },
+];
 
 const BeforeAfterSlider: React.FC = () => {
-  const [pos, setPos] = useState(52);
+  const [active, setActive] = useState(0);
+  const [pos, setPos] = useState(50);
   const ref = useRef<HTMLDivElement>(null);
   const dragging = useRef(false);
+  const paused = useRef(false);
+  const sc = SCENARIOS[active];
 
   const setFromClientX = (clientX: number) => {
     const el = ref.current;
@@ -339,11 +306,28 @@ const BeforeAfterSlider: React.FC = () => {
     setPos(Math.max(4, Math.min(96, pct)));
   };
 
+  const go = (i: number) => {
+    setActive(i);
+    setPos(50);
+  };
+
+  // Auto-advance through scenarios, like a live feed.
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const t = setInterval(() => {
+      if (!dragging.current && !paused.current) {
+        setActive((a) => (a + 1) % SCENARIOS.length);
+        setPos(50);
+      }
+    }, 5200);
+    return () => clearInterval(t);
+  }, []);
+
   return (
-    <div className="w-full">
+    <div className="relative w-full">
       <div
         ref={ref}
-        className="relative aspect-[5/3] w-full select-none touch-none overflow-hidden rounded-2xl border border-white/10 shadow-2xl shadow-black/60 cursor-ew-resize"
+        className="relative aspect-[5/3] w-full select-none touch-none overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-black/60 cursor-ew-resize"
         onPointerDown={(e) => {
           dragging.current = true;
           e.currentTarget.setPointerCapture(e.pointerId);
@@ -358,38 +342,88 @@ const BeforeAfterSlider: React.FC = () => {
         onPointerCancel={() => {
           dragging.current = false;
         }}
+        onMouseEnter={() => (paused.current = true)}
+        onMouseLeave={() => (paused.current = false)}
       >
         {/* AFTER (bottom layer, right side) */}
         <div className="absolute inset-0">
-          <AfterScene />
-        </div>
-        {/* BEFORE (top layer, clipped to the left of the handle) */}
-        <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
-          <BeforeScene />
+          <CivicImg
+            emoji={sc.afterEmoji}
+            width={960}
+            height={576}
+            className="h-full w-full object-cover"
+            alt={`${sc.label} after repair`}
+            rounded=""
+          />
+          <div className="pointer-events-none absolute inset-0 bg-verified/10 mix-blend-screen" />
         </div>
 
-        {/* labels */}
-        <span className="absolute left-3 top-3 rounded-md bg-black/55 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-slate-300 backdrop-blur">
+        {/* BEFORE (top layer, clipped to the left of the handle) */}
+        <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
+          <CivicImg
+            emoji={sc.beforeEmoji}
+            width={960}
+            height={576}
+            className="h-full w-full object-cover grayscale-[35%]"
+            alt={`${sc.label} before repair`}
+            rounded=""
+          />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0E1319]/25 via-transparent to-transparent" />
+        </div>
+
+        {/* scenario label + live pulse */}
+        <span className="absolute left-3 top-3 flex items-center gap-2 rounded-full bg-black/55 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-white backdrop-blur">
+          <span className="h-1.5 w-1.5 rounded-full bg-safety" style={{ animation: "pulse-glow 1.6s ease-in-out infinite" }} />
+          Live · {sc.label}
+        </span>
+        <span className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/55 px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-verified backdrop-blur">
+          <ScanLine className="h-3.5 w-3.5" /> {sc.status}
+        </span>
+
+        {/* AI-verified stamp on the after side */}
+        <span className="absolute bottom-4 right-4 flex items-center gap-1.5 rounded-lg bg-verified px-2.5 py-1.5 text-[11px] font-bold text-asphalt shadow-lg shadow-black/40">
+          <CheckCircle2 className="h-3.5 w-3.5" /> AI verified
+        </span>
+
+        {/* Before / After corner labels */}
+        <span className="absolute left-3 bottom-3 rounded-md bg-black/55 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-slate-300 backdrop-blur">
           Before
         </span>
-        <span className="absolute right-3 top-3 rounded-md bg-black/55 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-verified backdrop-blur">
+        <span className="absolute right-3 bottom-12 rounded-md bg-black/55 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-widest text-verified backdrop-blur">
           After
         </span>
 
         {/* divider + handle */}
-        <div
-          className="absolute inset-y-0 w-0.5 bg-white/80"
-          style={{ left: `${pos}%` }}
-        >
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white text-asphalt shadow-lg shadow-black/50">
+        <div className="absolute inset-y-0 w-0.5 bg-white/85" style={{ left: `${pos}%` }}>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full bg-white text-asphalt shadow-lg shadow-black/50">
             <ChevronsLeftRight className="h-5 w-5" />
           </div>
         </div>
       </div>
 
-      <p className="mt-2 text-center text-[11px] text-slate-500">
-        Drag the handle — same street, before and after AI verification
-      </p>
+      {/* scenario pills + caption */}
+      <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+        {SCENARIOS.map((s, i) => (
+          <button
+            key={s.key}
+            onClick={() => go(i)}
+            className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all ${
+              i === active
+                ? "border-verified/50 bg-verified/15 text-verified"
+                : "border-white/10 bg-white/[0.04] text-slate-400 hover:border-white/20 hover:text-slate-200"
+            }`}
+          >
+            {s.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-3 flex flex-col items-center justify-between gap-1.5 text-center sm:flex-row sm:text-left">
+        <p className="text-sm font-semibold text-slate-100">
+          {sc.label} · <span className="text-slate-400">{sc.place}</span>
+        </p>
+        <p className="text-xs text-slate-500">{sc.detail}</p>
+      </div>
     </div>
   );
 };
@@ -402,7 +436,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
   const { navigate } = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const goReport = () => navigate("/citizen/dashboard");
+  const goReport = () => navigate("/login?next=/citizen/dashboard");
   const goWorker = () => navigate("/worker/marketplace");
 
   const navLinks = [
@@ -498,72 +532,157 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
 
       {/* ================= Hero ================= */}
       <section className="relative overflow-hidden">
-        <Blob className="-top-24 right-[-6rem] h-80 w-80" from="rgba(255,106,61,0.4)" to="rgba(168,85,247,0.15)" />
+        <Blob className="-top-24 left-1/2 h-96 w-96 -translate-x-1/2" from="rgba(255,106,61,0.35)" to="rgba(168,85,247,0.15)" />
         <Blob className="top-1/2 left-[-5rem] h-72 w-72" duration="17s" delay="1.2s" from="rgba(0,217,163,0.35)" to="rgba(59,130,246,0.12)" />
         <Blob className="bottom-[-4rem] right-1/4 h-64 w-64" duration="20s" delay="0.6s" from="rgba(244,199,123,0.3)" to="rgba(255,106,61,0.1)" />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 pt-14 pb-16 sm:px-8 lg:grid-cols-2 lg:pt-20 lg:pb-24">
-          <div>
+        {/* subtle Discord-style grid */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 opacity-40"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px)",
+            backgroundSize: "54px 54px",
+            maskImage: "radial-gradient(70% 55% at 50% 30%, black 30%, transparent 100%)",
+            WebkitMaskImage: "radial-gradient(70% 55% at 50% 30%, black 30%, transparent 100%)",
+          }}
+        />
+
+        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 pt-14 pb-16 sm:px-8 lg:grid-cols-2 lg:gap-10 lg:pt-20 lg:pb-24">
+          {/* Left: tagline + CTAs */}
+          <div className="text-center lg:text-left">
             <Reveal>
-              <span className="inline-flex items-center gap-2 rounded-full border border-verified/30 bg-verified/10 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-widest text-verified">
+              <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-verified shadow-lg shadow-black/20 backdrop-blur-xl">
                 <span className="h-1.5 w-1.5 rounded-full bg-verified" style={{ animation: "pulse-glow 2.4s ease-in-out infinite" }} />
                 Decentralized Urban Repair
               </span>
             </Reveal>
 
             <Reveal delay={80}>
-              <h1 className="font-display mt-6 text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.4rem]">
-                Your street's pothole isn't the government's problem — it's your{" "}
+              <h1 className="font-display mx-auto mt-7 max-w-4xl text-[2.1rem] font-bold leading-[1.12] tracking-tight sm:text-5xl lg:mx-0 lg:text-[3.2rem]">
+                Your street's deteriorating infrastructure isn't the government's problem — it's your{" "}
                 <span className="bg-gradient-to-r from-[#00D9A3] via-[#F4C77B] to-[#FF6A3D] bg-clip-text text-transparent">
                   neighbourhood's project.
+                </span>
+                <span className="mt-3 block bg-gradient-to-r from-[#FF6A3D] via-[#F4C77B] to-[#00D9A3] bg-clip-text text-transparent">
+                  Solve it. Earn it.
                 </span>
               </h1>
             </Reveal>
 
-            <Reveal delay={160}>
-              <p className="mt-6 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
-                Citizens report it, AI prices it, neighbours fund it, a local worker fixes it — and AI
-                verifies the work before a single rupee moves.
-              </p>
-            </Reveal>
-
-            <Reveal delay={240}>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Reveal delay={200}>
+              <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
                 <button
                   onClick={goReport}
-                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6A3D] px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-orange-950/50 transition-transform hover:scale-[1.03]"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6A3D] px-7 py-3.5 text-sm font-bold text-white shadow-xl shadow-orange-950/50 transition-transform hover:scale-[1.04]"
                 >
                   Report an issue
                   <ArrowRight className="h-4 w-4" />
                 </button>
-                <a
-                  href="#how-it-works"
-                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-semibold text-slate-100 backdrop-blur transition-colors hover:bg-white/10"
+                <button
+                  onClick={goWorker}
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.06] px-7 py-3.5 text-sm font-semibold text-slate-100 shadow-lg shadow-black/20 backdrop-blur-xl transition-colors hover:bg-white/10"
                 >
-                  See how it works
-                </a>
-              </div>
-            </Reveal>
-
-            {/* live-looking stats */}
-            <Reveal delay={320}>
-              <div className="mt-10 grid max-w-md grid-cols-3 gap-4">
-                {[
-                  { label: "Cost estimate", value: "₹42,500" },
-                  { label: "Funders", value: "312" },
-                  { label: "AI match", value: "94%" },
-                ].map((s) => (
-                  <div key={s.label} className="rounded-xl border border-white/8 bg-white/[0.04] px-3 py-3 text-center">
-                    <div className="font-mono text-base font-bold text-verified sm:text-lg">{s.value}</div>
-                    <div className="mt-1 text-[10px] uppercase tracking-wider text-slate-400">{s.label}</div>
-                  </div>
-                ))}
+                  <HardHat className="h-4 w-4 text-safety" />
+                  I'm a contractor
+                </button>
               </div>
             </Reveal>
           </div>
 
-          <Reveal delay={200} className="lg:pl-4">
-            <BeforeAfterSlider />
+          {/* Right: before/after mockup */}
+          <Reveal delay={280} className="relative mx-auto mt-2 w-full max-w-4xl lg:mt-0">
+            <div className="relative">
+              <div
+                className="pointer-events-none absolute -inset-x-8 -top-8 -bottom-8 rounded-[2.5rem] opacity-60 blur-3xl"
+                style={{
+                  background:
+                    "radial-gradient(60% 60% at 20% 20%, rgba(0,217,163,0.18), transparent 60%), radial-gradient(50% 50% at 80% 30%, rgba(255,106,61,0.16), transparent 60%), radial-gradient(50% 50% at 50% 90%, rgba(168,85,247,0.16), transparent 60%)",
+                }}
+              />
+              <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-2.5 shadow-2xl shadow-black/60 backdrop-blur-xl">
+                <div className="mb-2 flex items-center gap-1.5 px-3 pt-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#FF5F57]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#FEBC2E]" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-[#28C840]" />
+                  <span className="ml-3 h-4 flex-1 rounded-md bg-white/[0.05]" />
+                </div>
+                <BeforeAfterSlider />
+              </div>
+
+              {/* floating glass cards (desktop only, so they never collide on phones) */}
+              <div
+                className="absolute -left-10 top-8 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl lg:flex"
+                style={{ animation: "float 7s ease-in-out infinite" }}
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-verified/15 text-verified">
+                  <Coins className="h-4 w-4" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold text-white">₹42,500 escrowed</div>
+                  <div className="text-[10px] text-slate-400">released on AI verify</div>
+                </div>
+              </div>
+
+              <div
+                className="absolute -right-10 top-1/3 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl lg:flex"
+                style={{ animation: "float 8s ease-in-out 1.1s infinite" }}
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-safety/15 text-safety">
+                  <Wrench className="h-4 w-4" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold text-white">Worker verified</div>
+                  <div className="text-[10px] text-slate-400">on site · 12:40</div>
+                </div>
+              </div>
+
+              <div
+                className="absolute -bottom-6 -left-8 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl lg:flex"
+                style={{ animation: "float 9s ease-in-out 0.6s infinite" }}
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sand/15 text-sand">
+                  <HandCoins className="h-4 w-4" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold text-white">312 neighbours</div>
+                  <div className="text-[10px] text-slate-400">funded in 5 days</div>
+                </div>
+              </div>
+
+              <div
+                className="absolute -bottom-6 -right-8 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl lg:flex"
+                style={{ animation: "float 7.5s ease-in-out 1.7s infinite" }}
+              >
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-verified/15 text-verified">
+                  <ShieldCheck className="h-4 w-4" />
+                </div>
+                <div className="text-left">
+                  <div className="text-xs font-bold text-white">AI match 94%</div>
+                  <div className="text-[10px] text-slate-400">before / after proof</div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* live-looking stats — full width under the split */}
+          <Reveal delay={360} className="lg:col-span-2">
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              {[
+                { label: "Cost estimate", value: "₹42,500" },
+                { label: "Funders", value: "312" },
+                { label: "AI match", value: "94%" },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className="rounded-2xl border border-white/10 bg-white/[0.05] px-4 py-4 text-center shadow-lg shadow-black/20 backdrop-blur-xl"
+                >
+                  <div className="font-mono text-xl font-bold text-verified sm:text-2xl">{s.value}</div>
+                  <div className="mt-1 text-[10px] uppercase tracking-wider text-slate-400">{s.label}</div>
+                </div>
+              ))}
+            </div>
           </Reveal>
         </div>
       </section>
@@ -605,7 +724,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
         <div className="mt-12 grid gap-4 sm:grid-cols-3">
           {PROBLEM_STATS.map((s, i) => (
             <Reveal key={s.label} delay={i * 90}>
-              <div className="group relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.04] p-6 transition-colors hover:border-white/15">
+              <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.05] p-6 shadow-lg shadow-black/20 backdrop-blur-xl transition-colors hover:border-white/15">
                 <div className="absolute -right-8 -top-8 h-24 w-24 rounded-full bg-safety/15 blur-2xl transition-opacity opacity-0 group-hover:opacity-100" />
                 <div className="font-mono text-3xl font-bold tracking-tight text-safety sm:text-4xl">{s.value}</div>
                 <p className="mt-3 text-sm leading-relaxed text-slate-400">{s.label}</p>
@@ -615,8 +734,8 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
         </div>
       </section>
 
-      {/* ================= How it works ================= */}
-      <section id="how-it-works" className="relative scroll-mt-20 border-t border-white/5 bg-[#10161d]/60">
+{/* ================= How it works ================= */}
+      <section id="how-it-works" className="relative scroll-mt-20 overflow-hidden border-t border-white/5 bg-[#10161d]/60">
         <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
           <Reveal>
             <div className="mx-auto max-w-2xl text-center">
@@ -630,30 +749,155 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
             </div>
           </Reveal>
 
-          <div className="relative mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
-            <div className="pointer-events-none absolute left-0 right-0 top-7 hidden lg:block">
-              <div className="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+          {/* ===== Animated flow line with travelling pulse ===== */}
+          <div className="relative mx-auto mt-14 hidden max-w-3xl lg:block">
+            <div className="absolute inset-x-6 top-6 h-px bg-white/15" />
+            {/* travelling dot */}
+            <div className="flow-dot absolute top-6 h-3 w-3 -translate-y-1/2 rounded-full bg-verified shadow-[0_0_12px_2px_rgba(0,217,163,0.8)]" />
+            {/* connector chevrons */}
+            <div className="absolute inset-x-6 top-6 flex items-center justify-between">
+              {Array.from({ length: 3 }).map((_, k) => (
+                <span key={k} className="relative" style={{ left: `${(k + 1) * 25}%` }}>
+                  <svg className="flow-chev h-4 w-4 text-safety" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </span>
+              ))}
             </div>
-            {STEPS.map((step, i) => (
-              <Reveal key={step.num} delay={i * 110}>
-                <div className="relative">
-                  <div className="font-mono relative z-10 flex h-14 w-14 items-center justify-center rounded-2xl border border-white/10 bg-[#0E1319] font-bold text-safety shadow-lg shadow-black/40">
+          </div>
+
+          {/* ===== Steps grid ===== */}
+          <div className="relative mt-10 grid gap-10 sm:grid-cols-2 lg:mt-6 lg:grid-cols-4 lg:gap-6">
+            {STEPS.filter((s) => s.num !== "05").map((step, i) => (
+              <Reveal key={step.num} delay={i * 140}>
+                <div className="group relative flex h-full flex-col items-center rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-center shadow-lg shadow-black/20 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1.5 hover:border-verified/40 hover:bg-white/[0.06]">
+                  {/* number badge */}
+                  <div className="font-mono absolute -top-4 left-1/2 z-10 flex h-9 w-9 -translate-x-1/2 items-center justify-center rounded-xl border border-white/15 bg-[#0E1319] text-xs font-bold text-safety shadow-lg shadow-black/40">
                     {step.num}
                   </div>
-                  <div
-                    className="mt-5 flex h-11 w-11 items-center justify-center rounded-xl text-verified"
-                    style={{ backgroundColor: "rgba(0,217,163,0.1)" }}
-                  >
-                    <step.icon className="h-5 w-5" />
+                  {/* image */}
+                  <div className="mt-4 flex h-28 w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-slate-900/60">
+                    <CivicImg
+                      emoji={step.photo}
+                      width={200}
+                      height={150}
+                      className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                      alt={step.title}
+                    />
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0E1319]/60 via-transparent to-transparent" />
                   </div>
-                  <h3 className="font-display mt-4 text-lg font-bold">{step.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{step.desc}</p>
+                  <div className="mt-3 flex h-9 w-9 items-center justify-center rounded-lg text-verified" style={{ backgroundColor: "rgba(0,217,163,0.12)" }}>
+                    <step.icon className="h-4 w-4" />
+                  </div>
+                  <h3 className="font-display mt-2 text-base font-bold leading-tight">{step.title}</h3>
+                  <p className="mt-1.5 text-[13px] leading-relaxed text-slate-400">{step.desc}</p>
                 </div>
               </Reveal>
             ))}
           </div>
+
+          {/* ===== Reward loop: AI scores → leaderboard → loop back ===== */}
+          <Reveal delay={140}>
+            <div className="relative mt-12 overflow-hidden rounded-2xl border border-verified/25 bg-gradient-to-r from-[#0A140F] via-[#0E1319] to-[#0E1319] p-6 sm:p-8">
+              {/* ambient glow */}
+              <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-verified/15 blur-3xl" />
+              <div className="pointer-events-none absolute -left-10 -bottom-10 h-40 w-40 rounded-full bg-safety/10 blur-3xl" />
+
+              <div className="relative flex flex-col items-center gap-6 lg:flex-row lg:gap-10">
+                {/* Loop-back arrow (reports → more fixes) */}
+                <div className="flex shrink-0 items-center gap-2 rounded-full border border-verified/30 bg-verified/10 px-4 py-2 text-xs font-bold uppercase tracking-wider text-verified">
+                  <ArrowRight className="h-3.5 w-3.5 rotate-180" />
+                  <span className="hidden sm:inline">loop back to report 01</span>
+                  <span className="sm:hidden">loop</span>
+                </div>
+
+                {/* AI scoring blurb */}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2.5">
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-verified" style={{ backgroundColor: "rgba(0,217,163,0.12)" }}>
+                      <Trophy className="h-4 w-4" />
+                    </span>
+                    <h3 className="font-display text-lg font-bold leading-tight sm:text-xl">{STEPS[4].title}</h3>
+                  </div>
+                  <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-400">{STEPS[4].desc}</p>
+                </div>
+
+                {/* Live leaderboard preview */}
+                <div className="w-full max-w-xs shrink-0 rounded-xl border border-white/10 bg-[#0E1319]/80 p-4 shadow-lg shadow-black/30">
+                  <p className="mb-3 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                    <span>City leaderboard</span>
+                    <span className="text-verified">live</span>
+                  </p>
+                  <div className="space-y-2.5">
+                    {REWARD_BOARD.map((row, i) => (
+                      <div key={row.name} className="flex items-center gap-2.5">
+                        <span className="w-6 text-center text-sm">{row.emoji}</span>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-baseline justify-between gap-2">
+                            <p className="truncate text-xs font-semibold text-white">{row.name}</p>
+                            <p className="text-[10px] font-bold text-verified">{row.pts.toLocaleString("en-IN")}</p>
+                          </div>
+                          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-800">
+                            <div
+                              className="reward-bar h-full rounded-full"
+                              style={{
+                                width: `${(row.pts / REWARD_BOARD[0].pts) * 100}%`,
+                                background: "linear-gradient(90deg,#00d9a3,#00ffc8)",
+                                animationDelay: `${i * 0.35}s`,
+                              }}
+                            />
+                          </div>
+                        </div>
+                        <span className="w-4 text-right text-[10px] font-bold text-slate-500">{row.role}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
+
+      {/* Keyframe animations for the flow effect */}
+      <style>{`
+        @keyframes flowPulse {
+          0%, 100% { opacity: 0.5; }
+          50% { opacity: 1; }
+        }
+        @keyframes pulse-glow {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 1; }
+        }
+        .flow-dot {
+          animation: flowTravel 4s linear infinite;
+        }
+        @keyframes flowTravel {
+          0%   { left: 1.5rem; opacity: 0; }
+          8%   { opacity: 1; }
+          50%  { left: calc(100% - 1.5rem); opacity: 1; }
+          92%  { opacity: 1; }
+          100% { left: 1.5rem; opacity: 0; }
+        }
+        .flow-chev {
+          animation: chevFade 2s ease-in-out infinite;
+        }
+        .flow-chev:nth-child(2) { animation-delay: 0.4s; }
+        .flow-chev:nth-child(3) { animation-delay: 0.8s; }
+        @keyframes chevFade {
+          0%, 100% { opacity: 0.25; }
+          50% { opacity: 1; }
+        }
+        .reward-bar {
+          transform-origin: left;
+          animation: rewardGrow 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        @keyframes rewardGrow {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
+        }
+      `}</style>
 
       {/* ================= Roles bento ================= */}
       <section id="for-everyone" className="mx-auto scroll-mt-20 max-w-6xl px-5 py-20 sm:px-8">
@@ -670,13 +914,26 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           {ROLES.map((r, i) => (
             <Reveal key={r.key} delay={i * 90}>
               <div
-                className="group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white/[0.04] p-6 transition-transform hover:-translate-y-1"
+                className="group relative flex h-full flex-col overflow-hidden rounded-2xl border bg-white/[0.05] p-6 shadow-lg shadow-black/20 backdrop-blur-xl transition-transform hover:-translate-y-1"
                 style={{ borderColor: `${r.color}33` }}
               >
                 <div
                   className="pointer-events-none absolute inset-x-0 top-0 h-28 opacity-30 blur-2xl transition-opacity group-hover:opacity-60"
                   style={{ background: `radial-gradient(60% 100% at 50% 0%, ${r.color}55, transparent)` }}
                 />
+                <div className="relative -mx-6 -mt-6 mb-5 overflow-hidden">
+                  <CivicImg
+                    emoji={r.photo}
+                    width={640}
+                    height={360}
+                    className="h-24 w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                    alt={r.title}
+                  />
+                  <div
+                    className="pointer-events-none absolute inset-0"
+                    style={{ background: `linear-gradient(to top, #0E1319 4%, ${r.color}22 70%, transparent)` }}
+                  />
+                </div>
                 <div
                   className="flex h-11 w-11 items-center justify-center rounded-xl"
                   style={{ backgroundColor: `${r.color}1f`, color: r.color }}
@@ -758,6 +1015,62 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
         </div>
       </section>
 
+      {/* ================= Live from the street ================= */}
+      <section className="mx-auto scroll-mt-20 max-w-6xl px-5 py-20 sm:px-8">
+        <Reveal>
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-verified">Live from the street</span>
+            <h2 className="font-display mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
+              Real fixes, real money, right now
+            </h2>
+            <p className="mt-4 text-slate-400">
+              Every card below is a live campaign — photo in, verified fix out.
+            </p>
+          </div>
+        </Reveal>
+
+        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {PHOTO_WALL.map((item, i) => (
+            <Reveal key={item.tag} delay={(i % 3) * 90} className={item.tall ? "lg:row-span-2" : ""}>
+              <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10">
+                <CivicImg
+                  emoji={item.emoji}
+                  width={640}
+                  height={item.tall ? 760 : 400}
+                  className={`w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110 ${
+                    item.tall ? "min-h-[260px] h-full lg:min-h-[420px]" : "h-56"
+                  }`}
+                  alt={item.tag}
+                />
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-[#0E1319] via-[#0E1319]/30 to-transparent" />
+                <span
+                  className={`absolute left-3 top-3 rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider shadow-lg ${item.tone}`}
+                >
+                  {item.badge}
+                </span>
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <h3 className="font-display text-sm font-bold text-white drop-shadow">{item.tag}</h3>
+                  <div className="mt-1.5 flex items-center gap-1.5 text-xs text-slate-300">
+                    <Coins className="h-3.5 w-3.5 text-verified" />
+                    {item.sub}
+                  </div>
+                  <div className="mt-3 h-1 w-full overflow-hidden rounded-full bg-white/15">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[#00D9A3] to-[#F4C77B]"
+                      style={{
+                        width: `${i % 2 === 0 ? "100%" : 60 + i * 7}%`,
+                        animation: "shimmer 3s linear infinite",
+                        backgroundSize: "200% 100%",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
       {/* ================= Stories marquee ================= */}
       <section id="stories" className="scroll-mt-20">
         <div className="mx-auto max-w-6xl px-5 pt-20 sm:px-8">
@@ -781,16 +1094,11 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
                 {STORIES.map((s) => (
                   <figure
                     key={`${copy}-${s.name}`}
-                    className="w-80 shrink-0 rounded-2xl border bg-white/[0.04] p-5 transition-colors group-hover:[animation-play-state:paused] hover:border-white/15"
+                    className="w-80 shrink-0 rounded-2xl border bg-white/[0.05] p-5 shadow-lg shadow-black/20 backdrop-blur-xl transition-colors group-hover:[animation-play-state:paused] hover:border-white/15"
                     style={{ borderColor: `${s.color}22` }}
                   >
                     <div className="flex items-center gap-3">
-                      <div
-                        className="flex h-10 w-10 items-center justify-center rounded-full font-bold"
-                        style={{ backgroundColor: `${s.color}22`, color: s.color }}
-                      >
-                        {s.name.charAt(0)}
-                      </div>
+                      <CivicAvatar name={s.name} size={40} className="ring-2 ring-white/10" />
                       <div>
                         <div className="text-sm font-bold text-slate-100">{s.name}</div>
                         <div className="text-xs text-slate-500">

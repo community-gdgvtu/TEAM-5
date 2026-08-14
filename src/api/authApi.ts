@@ -111,3 +111,50 @@ export async function verifyWhatsAppOtp(params: VerifyOtpParams): Promise<Verify
     };
   }
 }
+
+export interface GoogleAuthParams {
+  credential: string;
+  email: string;
+  name: string;
+  avatarUrl?: string;
+}
+
+export interface GoogleAuthResult {
+  success: boolean;
+  token?: string;
+  user?: any;
+  message: string;
+}
+
+export async function googleAuth(params: GoogleAuthParams): Promise<GoogleAuthResult> {
+  const { credential, email, name, avatarUrl } = params;
+
+  try {
+    const response = await fetch("/api/auth/google-auth", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ credential, email, name, avatarUrl }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || data.error) {
+      return {
+        success: false,
+        message: data.error || "Google authentication failed. Please try again.",
+      };
+    }
+
+    return {
+      success: true,
+      token: data.token,
+      user: data.user,
+      message: "Google sign-in successful!",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Network error during Google authentication.",
+    };
+  }
+}

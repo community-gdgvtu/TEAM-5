@@ -10,6 +10,12 @@ export interface ReportInput {
   description: string;
   photoUrl?: string;
   location?: { city: string; state: string; country: string };
+  postType?: "issue" | "completed" | "failed";
+  taggedWorker?: string;
+  hashtags?: string[];
+  title?: string;
+  qualityScore?: number;
+  userEstimate?: number;
 }
 
 export interface Report {
@@ -30,6 +36,10 @@ export interface Report {
   submittedAt?: string;
   aiConfidence?: number;
   urgency?: string;
+  postType?: "issue" | "completed" | "failed";
+  taggedWorker?: string;
+  hashtags?: string[];
+  userEstimate?: number;
 }
 
 export async function getMyReports(token?: string | null): Promise<{ reports: Report[] }> {

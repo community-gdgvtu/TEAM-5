@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Send, ArrowLeft, Search, ShieldCheck } from "lucide-react";
 import { useMessages } from "../../hooks/useMessages";
+import { CivicImg } from "../common/CivicImg";
 import type { MessageRole, MessageThread } from "../../data/messagesMock";
 
 const ROLE_ACCENT: Record<MessageRole, string> = {
@@ -105,11 +106,8 @@ export const MessagesScreen: React.FC<{ role: MessageRole; onOpenTopic?: (type: 
                   activeId === t.id ? "bg-slate-800/60" : "hover:bg-slate-800/30"
                 }`}
               >
-                <span
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0"
-                  style={{ background: t.topic.gradient }}
-                >
-                  {t.topic.emoji}
+                <span className="w-10 h-10 rounded-full overflow-hidden shrink-0">
+                  <CivicImg emoji={t.topic.emoji} width={40} height={40} className="w-full h-full rounded-full" alt={t.topic.title} />
                 </span>
                 <span className="flex-1 min-w-0">
                   <span className="flex items-center justify-between gap-2">
@@ -154,11 +152,8 @@ export const MessagesScreen: React.FC<{ role: MessageRole; onOpenTopic?: (type: 
               <span className="text-xs">All threads</span>
             </button>
             <div className="flex items-center gap-3">
-              <span
-                className="w-11 h-11 rounded-2xl flex items-center justify-center text-xl shrink-0"
-                style={{ background: active.topic.gradient }}
-              >
-                {active.topic.emoji}
+              <span className="w-11 h-11 rounded-2xl overflow-hidden shrink-0">
+                <CivicImg emoji={active.topic.emoji} width={44} height={44} className="w-full h-full rounded-2xl" alt={active.topic.title} />
               </span>
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5 flex-wrap">

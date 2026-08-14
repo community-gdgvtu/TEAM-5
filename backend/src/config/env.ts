@@ -21,4 +21,6 @@ export const env = {
 
   razorpayKey: process.env.RAZORPAY_KEY || "",
   cloudinaryUrl: process.env.CLOUDINARY_URL || "",
+
+  googleClientId: process.env.GOOGLE_CLIENT_ID || "",
 };

@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { JobModel } from "../models/Job.model";
 import { BidModel } from "../models/Bid.model";
+import { ReviewModel } from "../models/Review.model";
 import { UserModel } from "../models/User.model";
-import { isMongoConnected } from "../config/db";
+import { isMongoConnected, getUserModel } from "../config/db";
 import { createFeedPost } from "../services/feed.service";
 import {
   demoJobs,
@@ -330,4 +331,160 @@ export async function getWorkerProfile(req: Request, res: Response) {
 
 export async function getWorkerReviews(_req: Request, res: Response) {
   return res.json({ reviews: demoWorkerReviews });
+}
+
+/**
+ * GET /api/worker/task-history
+ * Returns the full task history for the authenticated worker:
+ * - All jobs the worker has interacted with (bids, claimed, completed)
+ * - All bids with status
+ * - All reviews received
+ * - Aggregated stats (total earned, jobs completed, avg rating, etc.)
+ */
+export async function getTaskHistory(req: Request, res: Response) {
+  const userId = (req as any).userId || req.query.workerId as string || "user_demo_worker_001";
+
+  try {
+    if (!isMongoConnected()) {
+      // Return enriched demo data for the worker
+      const completedJobs = demoJobs.filter((j) => j.stage === "Verified" || j.stage === "Submitted").map(toWorkerJob);
+      const allBids = demoBids.map((b) => toMyBid(b, b));
+      const stats = {
+        totalJobs: 137,
+        completedJobs: 124,
+        activeJobs: 3,
+        pendingBids: 2,
+        totalEarned: 342000,
+        avgRating: 4.9,
+        acceptanceRate: 96,
+        responseTime: "~20 min",
+      };
+      return res.json({
+        workerId: userId,
+        user: {
+          name: demoWorkerProfile.name,
+          skillCategory: demoWorkerProfile.skillCategory,
+          licenseId: demoWorkerProfile.licenseId,
+          memberSince: demoWorkerProfile.memberSince,
+          location: demoWorkerProfile.location,
+          verified: demoWorkerProfile.verified,
+        },
+        stats,
+        jobs: completedJobs,
+        bids: allBids,
+        reviews: demoWorkerReviews,
+        tags: ["#RoadRepair", "#DrainClearing", "#Streetlights", "#AIVerified", "#TopPerformer"],
+      });
+    }
+
+    // MongoDB path — query all relevant collections
+    const UserModel = getUserModel();
+
+    // Get user profile
+    const user = await UserModel.findOne({ id: userId }).lean();
+
+    // Get all bids by this worker
+    const workerBids = await BidModel.find({ workerId: userId }).sort({ createdAt: -1 }).lean();
+
+    // Get all jobs where this worker has a bid or is assigned
+    const jobIds = [...new Set([
+      ...workerBids.map((b) => b.jobId),
+    ])];
+
+    // Also find jobs where workerId matches (assigned jobs)
+    const assignedJobs = await JobModel.find({ workerId: userId }).lean();
+    const allJobIds = [...new Set([...jobIds, ...assignedJobs.map((j) => j.id)])];
+
+    // Fetch all relevant jobs
+    const allJobs = allJobIds.length > 0
+      ? await JobModel.find({ id: { $in: allJobIds } }).lean()
+      : [];
+
+    // Get all reviews for this worker
+    const workerReviews = await ReviewModel.find({ revieweeId: userId }).sort({ createdAt: -1 }).lean();
+
+    // Enrich jobs with demo data where fields are missing
+    const enrichedJobs = allJobs.map((j) => toWorkerJob(enrichFromDemo(j)));
+
+    // Enrich bids with job titles
+    const enrichedBids = workerBids.map((b) => {
+      const job = allJobs.find((j) => j.id === b.jobId);
+      const demo = demoBids.find((d) => d.id === b.id);
+      return toMyBid(
+        {
+          ...b,
+          jobTitle: job?.title || demo?.jobTitle || "Civic repair job",
+          emoji: job?.emoji || demo?.emoji || "🔧",
+          gradient: job?.gradient || demo?.gradient || "linear-gradient(135deg,#3b82f6,#6366f1)",
+          aiEstimate: job?.payout || demo?.aiEstimate || 0,
+          org: job?.area ? "Municipal Corporation" : demo?.org || "Community Fund",
+        },
+        demo
+      );
+    });
+
+    // Calculate stats
+    const completedCount = enrichedJobs.filter((j) =>
+      j.status === "completed" || j.status === "proof" || j.status === "verification"
+    ).length;
+    const activeCount = enrichedJobs.filter((j) => j.status === "active").length;
+    const pendingBidsCount = enrichedBids.filter((b) => b.status === "pending").length;
+    const totalEarned = enrichedJobs
+      .filter((j) => j.status === "completed")
+      .reduce((sum, j) => sum + (j.payout || 0), 0);
+    const avgRating = workerReviews.length > 0
+      ? workerReviews.reduce((sum, r) => sum + r.rating, 0) / workerReviews.length
+      : 0;
+
+    // Extract tags from job categories
+    const categories = [...new Set(enrichedJobs.map((j) => j.category).filter(Boolean))];
+    const tags = categories.map((c) => `#${c.replace(/\s+/g, "")}`);
+
+    return res.json({
+      workerId: userId,
+      user: user ? {
+        name: user.name,
+        skillCategory: user.supplementaryData?.workerSkillCategory || "",
+        licenseId: user.supplementaryData?.workerLicenseId || "",
+        memberSince: user.createdAt || "Unknown",
+        location: user.location ? `${user.location.city}, ${user.location.state}` : "",
+        verified: user.workerVerified || false,
+      } : {
+        name: "Worker",
+        skillCategory: "",
+        licenseId: "",
+        memberSince: "Unknown",
+        location: "",
+        verified: false,
+      },
+      stats: {
+        totalJobs: enrichedJobs.length,
+        completedJobs: completedCount,
+        activeJobs: activeCount,
+        pendingBids: pendingBidsCount,
+        totalEarned,
+        avgRating: Math.round(avgRating * 10) / 10,
+        acceptanceRate: enrichedBids.length > 0
+          ? Math.round((enrichedBids.filter((b) => b.status === "awarded").length / enrichedBids.length) * 100)
+          : 0,
+        responseTime: "~20 min",
+      },
+      jobs: enrichedJobs,
+      bids: enrichedBids,
+      reviews: workerReviews.map((r) => ({
+        id: r.id,
+        author: "Community Member",
+        avatar: "👤",
+        role: "Citizen" as const,
+        rating: r.rating,
+        text: r.comment,
+        jobTitle: allJobs.find((j) => j.id === r.jobId)?.title || "Civic work",
+        date: r.createdAt || "Recently",
+      })),
+      tags,
+    });
+  } catch (err) {
+    console.error("[DB ERROR] task-history:", err);
+    return res.status(500).json({ error: "Failed to load task history." });
+  }
 }

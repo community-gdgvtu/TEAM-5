@@ -50,6 +50,10 @@ export interface FeedPostInput {
   jobId?: string;
   campaignId?: string;
   beforeAfter?: { before: string; after: string };
+  photoUrl?: string;
+  taggedWorker?: string;
+  qualityScore?: number;
+  locationTag?: { city: string; state: string; country: string };
 }
 
 const DEFAULT_GRADIENT = "linear-gradient(135deg,#3b82f6,#6366f1)";
@@ -226,6 +230,23 @@ export async function getFeedPostById(id: string): Promise<IPost | null> {
   }
 }
 
+/** Resolve the work link id for a post (issueId > jobId > campaignId > id). */
+export function workKeyOf(post: Pick<IPost, "id" | "issueId" | "jobId" | "campaignId">): string {
+  return post.issueId || post.jobId || post.campaignId || post.id;
+}
+
+/** All posts belonging to the same work thread as the given post. */
+export async function getWorkThread(id: string): Promise<{ work: IPost | null; related: IPost[] }> {
+  const work = await getFeedPostById(id);
+  if (!work) return { work: null, related: [] };
+  const key = workKeyOf(work);
+  const all = await getFeedPosts();
+  const related = all.filter(
+    (p) => workKeyOf(p) === key || p.id === key
+  );
+  return { work, related };
+}
+
 export async function createFeedPost(input: FeedPostInput): Promise<IPost> {
   const post: IPost = {
     id: input.id || `post_${Date.now()}`,
@@ -256,6 +277,10 @@ export async function createFeedPost(input: FeedPostInput): Promise<IPost> {
     jobId: input.jobId,
     campaignId: input.campaignId,
     beforeAfter: input.beforeAfter,
+    photoUrl: input.photoUrl,
+    taggedWorker: input.taggedWorker,
+    qualityScore: input.qualityScore,
+    locationTag: input.locationTag,
     createdAt: new Date().toISOString(),
   };
 

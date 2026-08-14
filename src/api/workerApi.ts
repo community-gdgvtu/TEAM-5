@@ -126,3 +126,41 @@ export async function uploadProof(
     { jobId, status: "Submitted" }
   );
 }
+
+export interface TaskHistoryData {
+  workerId: string;
+  user: {
+    name: string;
+    skillCategory: string;
+    licenseId: string;
+    memberSince: string;
+    location: string;
+    verified: boolean;
+  };
+  stats: {
+    totalJobs: number;
+    completedJobs: number;
+    activeJobs: number;
+    pendingBids: number;
+    totalEarned: number;
+    avgRating: number;
+    acceptanceRate: number;
+    responseTime: string;
+  };
+  jobs: WorkerJob[];
+  bids: MyBid[];
+  reviews: Review[];
+  tags: string[];
+}
+
+export async function getTaskHistory(): Promise<TaskHistoryData | null> {
+  try {
+    const res = await fetch("/api/worker/task-history", {
+      headers: { Authorization: `Bearer ${getDemoSessionToken()}` },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
+}

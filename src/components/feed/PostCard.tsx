@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Heart, MessageCircle, Share2, BadgeCheck, MapPin } from "lucide-react";
 import { Badge } from "../common/Badge";
 import { ProgressBar } from "../common/ProgressBar";
+import { CivicImg, CivicAvatar } from "../common/CivicImg";
 import { C, FeedPost } from "../../api/feedApi";
 
 export const TYPE_META: Record<
@@ -12,6 +13,7 @@ export const TYPE_META: Record<
   job: { label: "Open Work", tone: "blue", chip: "#3b82f6" },
   completed: { label: "Work Done", tone: "green", chip: "#22c55e" },
   campaign: { label: "Campaign", tone: "purple", chip: "#a855f7" },
+  failed: { label: "Work Failed", tone: "red", chip: "#ef4444" },
 };
 
 export const roleColor: Record<FeedPost["authorRole"], string> = {
@@ -41,7 +43,8 @@ export const PostCard: React.FC<{
   onShare: (id: string) => void;
   onCta?: (post: FeedPost) => void;
   ctaLabel?: string;
-}> = ({ post, myId, currentUserName, onToggleLike, onComment, onShare, onCta, ctaLabel }) => {
+  onOpen?: (post: FeedPost) => void;
+}> = ({ post, myId, currentUserName, onToggleLike, onComment, onShare, onCta, ctaLabel, onOpen }) => {
   const [showAll, setShowAll] = useState(false);
   const [draft, setDraft] = useState("");
   const meta = TYPE_META[post.type];
@@ -67,36 +70,47 @@ export const PostCard: React.FC<{
     <article className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
       {/* Post header */}
       <div className="flex items-center gap-2.5 p-3">
-        <div
-          className="w-9 h-9 rounded-full flex items-center justify-center text-lg shrink-0"
-          style={{ background: post.gradient }}
+        <button
+          onClick={() => onOpen?.(post)}
+          className="text-left flex items-center gap-2.5 flex-1 min-w-0"
+          aria-label={`Open ${post.title}`}
         >
-          {post.authorAvatar || "🧑"}
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1">
-            <span className="text-sm font-semibold text-white truncate">{post.authorName}</span>
-            {post.authorVerified && <BadgeCheck className="w-4 h-4 text-sky-400 shrink-0" />}
-            <span
-              className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0"
-              style={{ background: `${roleColor[post.authorRole]}1f`, color: roleColor[post.authorRole] }}
-            >
-              {post.authorRole}
-            </span>
+          <CivicAvatar
+            name={post.authorName}
+            size={36}
+            className="w-9 h-9 shrink-0 ring-2 ring-white/10"
+            alt={post.authorName}
+          />
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1">
+              <span className="text-sm font-semibold text-white truncate">{post.authorName}</span>
+              {post.authorVerified && <BadgeCheck className="w-4 h-4 text-sky-400 shrink-0" />}
+              <span
+                className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full shrink-0"
+                style={{ background: `${roleColor[post.authorRole]}1f`, color: roleColor[post.authorRole] }}
+              >
+                {post.authorRole}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 truncate flex items-center gap-1">
+              <MapPin className="w-3 h-3" /> {post.area} · {post.location} · {timeAgo(post.createdAt)}
+            </p>
           </div>
-          <p className="text-xs text-slate-400 truncate flex items-center gap-1">
-            <MapPin className="w-3 h-3" /> {post.area} · {post.location} · {timeAgo(post.createdAt)}
-          </p>
-        </div>
+        </button>
         <Badge tone={meta.tone}>{meta.label}</Badge>
       </div>
 
       {/* Cover */}
-      <div className="relative w-full h-44 sm:h-52 flex items-center justify-center overflow-hidden" style={{ background: post.gradient }}>
-        <span className="text-6xl sm:text-7xl drop-shadow-lg">{post.emoji}</span>
+      <button onClick={() => onOpen?.(post)} className="relative w-full h-44 sm:h-52 overflow-hidden bg-slate-800 block text-left" aria-label={`Open ${post.title}`}>
+        {post.photoUrl ? (
+          <img src={post.photoUrl} alt={post.title} className="w-full h-full object-cover" />
+        ) : (
+          <CivicImg emoji={post.emoji} width={600} height={400} className="w-full h-full" alt={post.title} />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/25 to-transparent" />
         {post.status && (
           <div className="absolute top-2 right-2">
-            <Badge tone={post.type === "completed" ? "green" : meta.tone}>{post.status}</Badge>
+            <Badge tone={post.type === "completed" ? "green" : post.type === "failed" ? "red" : meta.tone}>{post.status}</Badge>
           </div>
         )}
         {post.beforeAfter && (
@@ -104,12 +118,19 @@ export const PostCard: React.FC<{
             ✅ After verified on site
           </div>
         )}
-      </div>
+        {post.qualityScore != null && (
+          <div className="absolute bottom-2 right-2 bg-black/40 backdrop-blur-sm rounded-full px-2.5 py-0.5 text-[11px] text-amber-300">
+            ★ {post.qualityScore}/5 quality target
+          </div>
+        )}
+      </button>
 
       {/* Body */}
       <div className="p-3 flex flex-col gap-2.5">
         <div className="flex items-center gap-1.5">
-          <span className="text-sm font-bold text-white leading-snug">{post.title}</span>
+          <button onClick={() => onOpen?.(post)} className="text-left">
+            <span className="text-sm font-bold text-white leading-snug">{post.title}</span>
+          </button>
         </div>
 
         <p className="text-sm text-slate-300 leading-snug">
@@ -159,6 +180,14 @@ export const PostCard: React.FC<{
           ))}
         </div>
 
+        {post.taggedWorker && (
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-slate-400">👷 Tagged:</span>
+            <span className="font-semibold text-slate-200">@{post.taggedWorker}</span>
+            <span className="text-slate-500">will be notified</span>
+          </div>
+        )}
+
         {/* Action row */}
         <div className="flex items-center gap-4 border-t border-slate-800 pt-2.5">
           <button
@@ -200,9 +229,7 @@ export const PostCard: React.FC<{
           <div className="space-y-2.5">
             {shown.map((cm, i) => (
               <div key={cm.id || i} className="flex items-start gap-2">
-                <span className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-sm shrink-0">
-                  {cm.avatar}
-                </span>
+                <CivicAvatar name={cm.userName} size={28} className="w-7 h-7 shrink-0" alt={cm.userName} />
                 <div className="min-w-0">
                   <p className="text-sm leading-snug">
                     <span className="font-semibold text-white">{cm.userName}</span>{" "}

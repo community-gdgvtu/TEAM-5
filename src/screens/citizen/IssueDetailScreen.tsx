@@ -9,7 +9,7 @@ import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
 
 /** Photos, funding progress bar, comments, timeline. */
-export const IssueDetailScreen: React.FC<NavScreenProps> = ({ params }) => {
+export const IssueDetailScreen: React.FC<NavScreenProps> = ({ params, go }) => {
   const { data: report } = useFetch(
     () => import("../../api/citizenApi").then((m) => m.getIssueDetail((params?.id as string) || "rep_001")),
     [params?.id]
@@ -37,7 +37,7 @@ export const IssueDetailScreen: React.FC<NavScreenProps> = ({ params }) => {
       </Card>
 
       <div>
-        <Button color="citizen" onClick={() => window.alert("Donate clicked")}>Donate</Button>
+        <Button color="citizen" onClick={() => go("donate", { id: params?.id })}>Donate</Button>
         <Button color="citizen" variant="ghost">← Back</Button>
       </div>
     </ScreenShell>

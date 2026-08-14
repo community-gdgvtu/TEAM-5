@@ -6,7 +6,7 @@ import { ROLE_CONFIGS, COUNTRY_CODES } from "../../data/roleConfig";
 import { LocationPicker } from "../ui/location-picker";
 import AuroraBackground from "../ui/aurora-background";
 import CivicosMascot from "./CivicosMascot";
-import { sendWhatsAppOtp, verifyWhatsAppOtp } from "../../api/authApi";
+import { sendWhatsAppOtp, verifyWhatsAppOtp, googleAuth } from "../../api/authApi";
 import {
   UserCheck,
   Building2,
@@ -26,6 +26,20 @@ import {
   Info,
   X,
 } from "lucide-react";
+
+declare global {
+  interface Window {
+    google?: {
+      accounts?: {
+        id?: {
+          initialize: (config: any) => void;
+          prompt: (callback?: (notification: any) => void) => void;
+          renderButton: (parent: HTMLElement, config: any) => void;
+        };
+      };
+    };
+  }
+}
 
 const ROLE_ICONS: Record<string, React.ElementType> = {
   citizen: UserCheck,
@@ -63,6 +77,7 @@ export const LoginSignupFlow: React.FC = () => {
   // Google Auth State
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
   const [googleCustomEmail, setGoogleCustomEmail] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [selectedGoogleProfile, setSelectedGoogleProfile] = useState<{
     name: string;
     email: string;
@@ -70,6 +85,78 @@ export const LoginSignupFlow: React.FC = () => {
     role: Role;
     reason: string;
   } | null>(null);
+
+  // Load Google Identity Services and initialize
+  useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || "";
+    if (!clientId) return;
+
+    // Load the Google Identity Services script
+    const script = document.createElement("script");
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => {
+      if (window.google?.accounts?.id) {
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: handleGoogleCredentialResponse,
+          auto_select: false,
+        });
+      }
+    };
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    };
+  }, []);
+
+  // Handle the real Google OAuth credential response
+  const handleGoogleCredentialResponse = async (response: { credential: string }) => {
+    setIsGoogleLoading(true);
+    try {
+      // Decode the JWT to get user info (for display + fallback)
+      const payload = JSON.parse(atob(response.credential.split(".")[1]));
+      const email = payload.email || "";
+      const name = payload.name || email.split("@")[0].replace(".", " ");
+      const avatar = payload.picture || "";
+
+      // Send credential to backend for verification + DB upsert
+      const result = await googleAuth({
+        credential: response.credential,
+        email,
+        name,
+        avatarUrl: avatar,
+      });
+
+      if (result.success && result.user) {
+        setCurrentUser(result.user as UserProfile);
+        setIsGoogleModalOpen(false);
+      } else {
+        setErrors({ google: result.message || "Google sign-in failed." });
+      }
+    } catch (err) {
+      setErrors({ google: "Google authentication error. Please try again." });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
+  // Trigger Google sign-in popup
+  const triggerGoogleSignIn = () => {
+    if (window.google?.accounts?.id) {
+      window.google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // Fallback: open the modal for manual email entry
+          setIsGoogleModalOpen(true);
+        }
+      });
+    } else {
+      // Google library not loaded — use modal fallback
+      setIsGoogleModalOpen(true);
+    }
+  };
 
   // Form State
   const [step, setStep] = useState<number>(1);
@@ -166,6 +253,25 @@ export const LoginSignupFlow: React.FC = () => {
     }
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  // One-click demo login — creates a demo Citizen account and enters the
+  // citizen dashboard (feed → report → track → leaderboard).
+  const handleDemoCitizenLogin = () => {
+    const demoUser: UserProfile = {
+      id: "user_citizen_001",
+      name: "Ananya Sharma",
+      mobile: "9876500001",
+      countryCode: "+91",
+      email: "ananya.sharma@citizen.in",
+      age: 27,
+      location: { city: "Mumbai", state: "Maharashtra", country: "India" },
+      role: "citizen",
+      verifiedWhatsApp: true,
+      createdAt: new Date().toISOString(),
+      supplementaryData: {},
+    };
+    setCurrentUser(demoUser);
   };
 
   // One-click demo login — creates a demo Investor account and enters the investor dashboard.
@@ -545,16 +651,30 @@ export const LoginSignupFlow: React.FC = () => {
                 <div>
                   <button
                     type="button"
-                    onClick={() => setIsGoogleModalOpen(true)}
+                    onClick={triggerGoogleSignIn}
+                    disabled={isGoogleLoading}
                     aria-label="Sign in with Google account with automatic role assignment"
-                    className="w-full py-2.5 px-4 bg-slate-950/90 hover:bg-slate-900 border border-slate-700/90 hover:border-purple-500/50 text-slate-100 font-medium rounded-xl text-xs sm:text-sm shadow-lg flex items-center justify-center space-x-2.5 transition-all group cursor-pointer"
+                    className="w-full py-2.5 px-4 bg-slate-950/90 hover:bg-slate-900 border border-slate-700/90 hover:border-purple-500/50 text-slate-100 font-medium rounded-xl text-xs sm:text-sm shadow-lg flex items-center justify-center space-x-2.5 transition-all group cursor-pointer disabled:opacity-50"
                   >
-                    <GoogleIcon />
-                    <span className="group-hover:text-purple-200 transition-colors">{t("signInWithGoogle")}</span>
+                    {isGoogleLoading ? (
+                      <RefreshCw className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <GoogleIcon />
+                    )}
+                    <span className="group-hover:text-purple-200 transition-colors">
+                      {isGoogleLoading ? "Signing in..." : t("signInWithGoogle")}
+                    </span>
                     <span className="text-[10px] bg-purple-500/20 text-purple-300 font-semibold px-2 py-0.5 rounded-full border border-purple-500/30 ml-1">
                       1-Click Auto Role
                     </span>
                   </button>
+
+                  {errors.google && (
+                    <p className="text-xs text-rose-400 mt-2 flex items-center space-x-1" role="alert">
+                      <AlertCircle className="w-3 h-3" />
+                      <span>{errors.google}</span>
+                    </p>
+                  )}
 
                   <div className="relative my-4">
                     <div className="absolute inset-0 flex items-center">
@@ -566,6 +686,30 @@ export const LoginSignupFlow: React.FC = () => {
                       </span>
                     </div>
                   </div>
+                </div>
+
+                {/* One-Click Demo Citizen Login */}
+                <div>
+                  <button
+                    type="button"
+                    onClick={handleDemoCitizenLogin}
+                    className="w-full p-3.5 rounded-xl bg-emerald-600/15 border border-emerald-500/40 hover:bg-emerald-600/25 text-left transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2.5">
+                        <span className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
+                          <UserCheck className="w-4 h-4" />
+                        </span>
+                        <div>
+                          <div className="text-xs font-bold text-white">One-Click Demo Login — Citizen</div>
+                          <div className="text-[11px] text-slate-400">
+                            Report an issue → feed → track → leaderboard
+                          </div>
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                    </div>
+                  </button>
                 </div>
 
                 {/* One-Click Demo Investor Login */}
@@ -1535,35 +1679,42 @@ export const LoginSignupFlow: React.FC = () => {
               <div className="mt-5">
                 <button
                   type="button"
-                  disabled={!selectedGoogleProfile}
-                  onClick={() => {
+                  disabled={!selectedGoogleProfile || isGoogleLoading}
+                  onClick={async () => {
                     if (selectedGoogleProfile) {
-                      const newUser: UserProfile = {
-                        id: `usr_g_${Date.now()}`,
-                        name: selectedGoogleProfile.name,
-                        mobile: "Google Auth",
-                        countryCode: "+1",
-                        email: selectedGoogleProfile.email,
-                        age: 26,
-                        location,
-                        role: selectedGoogleProfile.role,
-                        verifiedWhatsApp: true,
-                        createdAt: new Date().toISOString(),
-                        supplementaryData: {
-                          organizationType: selectedGoogleProfile.role === "organization" ? "Municipal Corporation" : undefined,
-                          workerSkillCategory: selectedGoogleProfile.role === "worker" ? "Road & Pavement Repairs" : undefined,
-                          investorKycStatus: selectedGoogleProfile.role === "investor" ? "Verified ESG Fund" : undefined,
-                        },
-                      };
-                      setCurrentUser(newUser);
-                      setIsGoogleModalOpen(false);
+                      setIsGoogleLoading(true);
+                      try {
+                        const result = await googleAuth({
+                          credential: "",
+                          email: selectedGoogleProfile.email,
+                          name: selectedGoogleProfile.name,
+                          avatarUrl: selectedGoogleProfile.avatar,
+                        });
+
+                        if (result.success && result.user) {
+                          setCurrentUser(result.user as UserProfile);
+                          setIsGoogleModalOpen(false);
+                        } else {
+                          setErrors({ google: result.message || "Google sign-in failed." });
+                        }
+                      } catch (err) {
+                        setErrors({ google: "Authentication error." });
+                      } finally {
+                        setIsGoogleLoading(false);
+                      }
                     }
                   }}
                   className="w-full py-3 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs sm:text-sm shadow-lg flex items-center justify-center space-x-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                 >
-                  <GoogleIcon />
+                  {isGoogleLoading ? (
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <GoogleIcon />
+                  )}
                   <span>
-                    {selectedGoogleProfile
+                    {isGoogleLoading
+                      ? "Authenticating..."
+                      : selectedGoogleProfile
                       ? `Continue as ${selectedGoogleProfile.name} (${ROLE_CONFIGS[selectedGoogleProfile.role]?.title})`
                       : "Select an account to continue"}
                   </span>

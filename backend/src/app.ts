@@ -12,7 +12,7 @@ export async function createApp(): Promise<express.Express> {
 
   const app = express();
 
-  app.use(express.json());
+  app.use(express.json({ limit: "20mb" }));
 
   app.get("/api/health", (_req, res) => {
     res.json({ status: "ok", app: "Civic Fix AI" });

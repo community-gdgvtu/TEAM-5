@@ -14,6 +14,9 @@ import { VerificationStatusScreen } from "../screens/worker/VerificationStatusSc
 import { EarningsScreen } from "../screens/worker/EarningsScreen";
 import { ReviewsScreen } from "../screens/worker/ReviewsScreen";
 import { WorkerProfileScreen } from "../screens/worker/WorkerProfileScreen";
+import { TaskHistoryScreen } from "../screens/worker/TaskHistoryScreen";
+import { LeaderboardScreen } from "../screens/shared/LeaderboardScreen";
+import { WorkTrackingScreen } from "../screens/shared/WorkTrackingScreen";
 import { MessagesScreen } from "../components/messages/MessagesScreen";
 import { useRouter } from "../router";
 
@@ -129,13 +132,19 @@ export const WorkerNavigator: React.FC<{ section?: string }> = ({ section }) => 
         return <ReviewsScreen {...props} />;
       case "profile":
         return <WorkerProfileScreen {...props} />;
+      case "taskHistory":
+        return <TaskHistoryScreen {...props} />;
+      case "leaderboard":
+        return <LeaderboardScreen {...props} role="worker" />;
+      case "tracking":
+        return <WorkTrackingScreen {...props} role="worker" />;
       default:
         return <JobFeedScreen {...props} />;
     }
   };
 
   return (
-    <WorkerShell active={activeTab} onTab={onTab} onBack={showBack ? back : undefined}>
+    <WorkerShell active={activeTab} onTab={onTab} onBack={showBack ? back : undefined} onLeaderboard={() => go("leaderboard")}>
       <AnimatePresence mode="popLayout" initial={false} custom={direction}>
         <motion.div
           key={current.name + (current.params?.id ?? "")}

@@ -5,12 +5,15 @@ import { useApp } from "../../context/AppContext";
 import { useFeed } from "../../hooks/useFeed";
 import { FeedPost, FeedPostType } from "../../api/feedApi";
 import { PostCard } from "./PostCard";
+import { RedditFeed } from "./RedditFeed";
+import { HighlightsStrip } from "./HighlightsStrip";
 
 export type FeedRole = "citizen" | "worker" | "investor" | "organization";
 
 const FILTERS: { key: "all" | FeedPostType; label: string; color: string }[] = [
   { key: "all", label: "All", color: "#94a3b8" },
   { key: "completed", label: "Work Done", color: "#22c55e" },
+  { key: "failed", label: "Work Failed", color: "#ef4444" },
   { key: "campaign", label: "Campaigns", color: "#a855f7" },
   { key: "job", label: "Open Work", color: "#3b82f6" },
   { key: "issue", label: "Citizen", color: "#f59e0b" },
@@ -75,6 +78,9 @@ export const FeedScreen: React.FC<NavScreenProps & { role: FeedRole }> = ({ go, 
         if (post.type === "issue" && post.issueId) {
           return { label: "Track", action: () => go("detail", { id: post.issueId }) };
         }
+        if (post.type === "failed" && post.issueId) {
+          return { label: "Re-report", action: () => go("detail", { id: post.issueId }) };
+        }
         return null;
       case "organization":
         if (post.type === "job" || post.type === "campaign") {
@@ -84,7 +90,28 @@ export const FeedScreen: React.FC<NavScreenProps & { role: FeedRole }> = ({ go, 
     }
   };
 
-  return (
+  /** Open a post's work-tracking thread. */
+  const openTracking = (post: FeedPost) => {
+    const target = post.issueId || post.jobId || post.campaignId || post.id;
+    go("tracking", { id: target });
+  };
+
+  return role === "citizen" ? (
+    <div className="px-3 pt-3 sm:px-5 sm:pt-5">
+      <HighlightsStrip onClick={(h) => go("search", { highlight: h.id })} />
+      <RedditFeed
+        posts={posts}
+        loading={loading}
+        myId={myId}
+        currentUserName={myName}
+        onToggleLike={toggleLike}
+        onComment={addComment}
+        onShare={share}
+        ctaFor={ctaFor}
+        onOpen={openTracking}
+      />
+    </div>
+  ) : (
     <div className="px-3 pt-3 sm:px-5 sm:pt-5">
       {/* Toolbar */}
       <div className="flex items-center gap-2">
@@ -146,6 +173,7 @@ export const FeedScreen: React.FC<NavScreenProps & { role: FeedRole }> = ({ go, 
               onShare={share}
               onCta={cta ? cta.action : undefined}
               ctaLabel={cta?.label}
+              onOpen={openTracking}
             />
           );
         })}

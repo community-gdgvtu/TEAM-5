@@ -195,6 +195,87 @@ async function seedWorkers() {
   );
 }
 
+/**
+ * Canonical demo login accounts — mirrors `demoUserForRole` in src/router.tsx.
+ * URL deep links auto-login these ids, so they MUST exist for the demo session
+ * tokens to authenticate against MongoDB (auth middleware rejects unknown ids).
+ * Upserts per id so existing databases keep their own state.
+ */
+const demoAccounts = [
+  {
+    id: "user_citizen_001",
+    name: "Ananya Sharma",
+    mobile: "9876500001",
+    email: "ananya.sharma@citizen.in",
+    role: "citizen" as const,
+    city: "Mumbai",
+    state: "Maharashtra",
+    supplementaryData: {},
+  },
+  {
+    id: "org_mumbai_001",
+    name: "Brihanmumbai Municipal Corporation",
+    mobile: "9876500002",
+    email: "operations@municipal.gov",
+    role: "organization" as const,
+    city: "Mumbai",
+    state: "Maharashtra",
+    supplementaryData: { organizationRegId: "MC-MUM-2026-99", organizationType: "Municipal Corporation" },
+  },
+  {
+    id: "user_demo_worker_001",
+    name: "Rahul Deshmukh",
+    mobile: "9876500003",
+    email: "rahul.deshmukh@contractor.in",
+    role: "worker" as const,
+    city: "Bengaluru",
+    state: "Karnataka",
+    supplementaryData: { workerSkillCategory: "Sanitation & Drainage", workerLicenseId: "TR-5582910" },
+  },
+  {
+    id: "user_demo_investor_001",
+    name: "Nikhil Rao",
+    mobile: "9876500004",
+    email: "nikhil.rao@invest.in",
+    role: "investor" as const,
+    city: "Mumbai",
+    state: "Maharashtra",
+    supplementaryData: { investorEntityName: "Nikhil Rao Capital", investorKycStatus: "Verified Individual" },
+  },
+];
+
+async function seedDemoUsers() {
+  const now = new Date().toISOString();
+  for (const acc of demoAccounts) {
+    try {
+      // Upsert by id; keep pre-existing accounts untouched. Per-account so one
+      // collision (e.g. duplicate email from prior data) never aborts the rest.
+      await UserModel.updateOne(
+        { id: acc.id },
+        {
+          $setOnInsert: {
+            id: acc.id,
+            name: acc.name,
+            mobile: acc.mobile,
+            countryCode: "+91",
+            email: acc.email,
+            age: 21,
+            location: { city: acc.city, state: acc.state, country: "India" },
+            role: acc.role,
+            supplementaryData: acc.supplementaryData,
+            verifiedWhatsApp: true,
+            verifiedAt: now,
+            createdAt: now,
+          },
+        },
+        { upsert: true }
+      );
+    } catch (err) {
+      console.warn("⚠️ demo account skipped:", acc.id, (err as Error).message);
+    }
+  }
+}
+
 async function seedDisputes() {
   const count = await DisputeModel.countDocuments();
   if (count > 0) return;
@@ -247,6 +328,7 @@ export async function seedDatabase() {
     await seedCampaigns();
     await seedBids();
     await seedWorkers();
+    await seedDemoUsers();
     await seedDisputes();
     await seedOrganization();
     await seedPosts();

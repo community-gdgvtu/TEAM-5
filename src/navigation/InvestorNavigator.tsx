@@ -10,6 +10,8 @@ import { CompletionReportScreen } from "../screens/investor/CompletionReportScre
 import { PayoutConfirmScreen } from "../screens/investor/PayoutConfirmScreen";
 import { RegionalAnalyticsScreen } from "../screens/investor/RegionalAnalyticsScreen";
 import { InvestorSettingsScreen } from "../screens/investor/InvestorSettingsScreen";
+import { LeaderboardScreen } from "../screens/shared/LeaderboardScreen";
+import { WorkTrackingScreen } from "../screens/shared/WorkTrackingScreen";
 import { MessagesScreen } from "../components/messages/MessagesScreen";
 import { useRouter } from "../router";
 
@@ -91,13 +93,17 @@ export const InvestorNavigator: React.FC<{ section?: string }> = ({ section }) =
         return <RegionalAnalyticsScreen {...props} />;
       case "settings":
         return <InvestorSettingsScreen {...props} />;
+      case "leaderboard":
+        return <LeaderboardScreen {...props} role="investor" />;
+      case "tracking":
+        return <WorkTrackingScreen {...props} role="investor" />;
       default:
         return <FeedScreen {...props} role="investor" />;
     }
   };
 
   return (
-    <InvestorShell active={activeTab} onTab={onTab} onBack={showBack ? back : undefined}>
+    <InvestorShell active={activeTab} onTab={onTab} onBack={showBack ? back : undefined} onLeaderboard={() => go("leaderboard")}>
       {renderScreen()}
     </InvestorShell>
   );

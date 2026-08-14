@@ -48,6 +48,6 @@ You own this folder plus:
 
 **Demo-critical (build first):** ReportIssueScreen → CostEstimateScreen → DonateScreen.
 
-**Already built:** citizen navigator + shell (`CitizenShell`, v2 5-tab bar Feed/Search/Report+/Messages/Profile with elevated Report center action), `ReportIssueScreen`, `IssueDetailScreen`, `MyReportsScreen`, `CitizenProfileScreen` (IG-grid + leaderboard + My Reports link), `CommunityFeedScreen` (Search tab), shared Messages inbox (`MessagesScreen`, threads from `/api/messages`), and the shared feed (issue posts auto-post to `/api/feed` on report). Remaining per spec: CostEstimate step, Donate action, Notifications.
+**Already built:** citizen navigator + shell (`CitizenShell`, v2 5-tab bar Feed/Search/Report+/Messages/Profile with elevated Report center action), `ReportIssueScreen` → `CostEstimateScreen` → auto campaign, `IssueDetailScreen` → `DonateScreen` (Fund action), `NotificationsScreen` (🔔 bell in shell header), `MyReportsScreen`, `CitizenProfileScreen` (IG-grid + leaderboard + My Reports link), `CommunityFeedScreen` (Search tab), shared Messages inbox (`MessagesScreen`, threads from `/api/messages`), shared feed (issue posts auto-post to `/api/feed` on report), Reddit-style feed (`RedditFeed`, feed tab) with `HighlightsStrip` stories strip ("Trending near you", "Funding deadline today") above it.
 
 Do not touch `src/screens/organization/`, `worker/`, `investor/`.

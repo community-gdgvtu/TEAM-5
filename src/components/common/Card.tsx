@@ -1,6 +1,6 @@
 import React from "react";
 
-/** Card surface used across all role screens. */
+/** Card surface used across all role screens — Discord-inspired with glassmorphism. */
 export const Card: React.FC<{
   title?: string;
   subtitle?: string;
@@ -12,17 +12,17 @@ export const Card: React.FC<{
   return (
     <div
       onClick={onClick}
-      className={`bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl ${
-        onClick ? "cursor-pointer hover:border-slate-600 transition-colors" : ""
+      className={`bg-slate-950/60 backdrop-blur-sm border border-slate-700/50 rounded-xl p-5 shadow-md transition-colors ${
+        onClick ? "cursor-pointer hover:border-slate-500 transition-colors" : ""
       } ${className}`}
     >
       {title && (
         <div className="mb-3">
           <div className="flex items-center gap-2">
-            {accent && <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: accent }} />}
-            <h3 className="font-bold text-slate-100">{title}</h3>
+            {accent && <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: accent }} />}
+            <h3 className="font-semibold text-slate-100">{title}</h3>
           </div>
-          {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
+          {subtitle && <p className="text-sm text-slate-400 mt-1">{subtitle}</p>}
         </div>
       )}
       {children}

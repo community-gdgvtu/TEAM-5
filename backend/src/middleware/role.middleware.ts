@@ -4,7 +4,8 @@ import { getUserModel } from "../config/db";
 
 /**
  * Role-based access guard: rejects if the authenticated user's role
- * is not one of the allowed roles.
+ * is not one of the allowed roles. Looks the user up by their real id
+ * (authMiddleware already guaranteed the account exists).
  */
 export function roleMiddleware(...allowedRoles: Array<"citizen" | "organization" | "worker" | "investor">) {
   return async (req: AuthedRequest, res: Response, next: NextFunction) => {
@@ -13,9 +14,7 @@ export function roleMiddleware(...allowedRoles: Array<"citizen" | "organization"
     }
 
     try {
-      const user = await getUserModel()
-        .findOne({ mobile: req.userId.split("_").slice(-1)[0] || req.userId })
-        ?.lean();
+      const user = await getUserModel().findOne({ id: req.userId })?.lean();
       const role = user?.role;
 
       if (!role || !allowedRoles.includes(role)) {
@@ -25,6 +24,7 @@ export function roleMiddleware(...allowedRoles: Array<"citizen" | "organization"
       req.userRole = role;
       next();
     } catch (err) {
+      console.error("[ROLE] check failed:", err);
       return res.status(500).json({ error: "Role check failed." });
     }
   };

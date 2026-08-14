@@ -8,7 +8,7 @@
 
 import { demoCampaigns, fmtMoney } from "./investorMock";
 
-export type FeedPostType = "issue" | "job" | "completed" | "campaign";
+export type FeedPostType = "issue" | "job" | "completed" | "campaign" | "failed";
 export type FeedAuthorRole = "citizen" | "organization" | "worker" | "investor";
 
 export interface FeedComment {
@@ -53,6 +53,11 @@ export interface FeedPost {
   campaignId: string | null;
   beforeAfter: { before: string; after: string } | null;
   createdAt: string;
+  /** Citizen uploads — real photo, tagged worker, quality tracking. */
+  photoUrl?: string;
+  taggedWorker?: string;
+  qualityScore?: number;
+  locationTag?: { city: string; state: string; country: string };
 }
 
 export const C = fmtMoney;
@@ -194,6 +199,10 @@ export function createFeedPostMock(input: Partial<FeedPost> & { type: FeedPostTy
     jobId: input.jobId || null,
     campaignId: input.campaignId || null,
     beforeAfter: input.beforeAfter || null,
+    photoUrl: input.photoUrl,
+    taggedWorker: input.taggedWorker,
+    qualityScore: input.qualityScore,
+    locationTag: input.locationTag,
     createdAt: new Date().toISOString(),
   };
   store = [post, ...(store || [])];

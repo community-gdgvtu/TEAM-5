@@ -46,6 +46,10 @@ export async function createFeedPost(input: {
   issueId?: string;
   jobId?: string;
   campaignId?: string;
+  photoUrl?: string;
+  taggedWorker?: string;
+  qualityScore?: number;
+  locationTag?: { city: string; state: string; country: string };
 }): Promise<FeedPost> {
   return withFallback<FeedPost>(
     apiFetch("/api/feed", {
@@ -98,5 +102,28 @@ export async function shareFeedPost(id: string): Promise<{ shares: number }> {
       headers: { Authorization: `Bearer ${getDemoSessionToken()}` },
     }),
     { shares: 0 }
+  );
+}
+
+/** Work-tracking thread: a work + every post that belongs to it. */
+export async function getWorkTracking(id: string): Promise<{
+  work: FeedPost | null;
+  related: FeedPost[];
+  taggedWorkers: string[];
+  workKey: string;
+}> {
+  return withFallback<{
+    work: FeedPost | null;
+    related: FeedPost[];
+    taggedWorkers: string[];
+    workKey: string;
+  }>(
+    apiFetch(`/api/tracking/${id}`),
+    {
+      work: (await getFeedPosts()).find((p) => p.id === id || p.issueId === id) || null,
+      related: [],
+      taggedWorkers: [],
+      workKey: id,
+    }
   );
 }

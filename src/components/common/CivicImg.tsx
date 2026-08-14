@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { getImageUrl } from "../../data/civicImages";
 
 export interface CivicImgProps {
@@ -24,7 +24,11 @@ export const CivicImg: React.FC<CivicImgProps> = ({
   fit = "cover",
   fallbackEmoji = true,
 }) => {
-  const finalSrc = src ?? (emoji ? getImageUrl(emoji, width ?? 600, height ?? 400) : undefined);
+  const [failed, setFailed] = useState(false);
+  const seedKey = emoji ?? src ?? "civic";
+  const finalSrc = failed
+    ? `https://picsum.photos/seed/${encodeURIComponent(seedKey)}/${width ?? 600}/${height ?? 400}.jpg`
+    : src ?? (emoji ? getImageUrl(emoji, width ?? 600, height ?? 400) : undefined);
   const finalClass = `${rounded} object-${fit} ${className}`;
 
   if (!finalSrc) {
@@ -33,7 +37,7 @@ export const CivicImg: React.FC<CivicImgProps> = ({
     ) : null;
   }
 
-  return <img src={finalSrc} alt={alt} className={finalClass} loading="lazy" />;
+  return <img src={finalSrc} alt={alt} className={finalClass} loading="lazy" onError={() => setFailed(true)} />;
 };
 
 export const CivicAvatar: React.FC<{

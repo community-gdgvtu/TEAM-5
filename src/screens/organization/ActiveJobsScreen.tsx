@@ -7,7 +7,7 @@ import { OrgJob, JobStage, C } from "../../data/orgMock";
 import { Badge } from "../../components/common/Badge";
 import { Star, Flag, ChevronRight, User } from "lucide-react";
 import { CivicImg } from "../../components/common/CivicImg";
-import { STAGE_IMAGE_SEEDS } from "../../data/civicImages";
+import { STAGE_EMOJI } from "../../data/civicImages";
 
 const STAGES: JobStage[] = ["Open", "Claimed", "InProgress", "Submitted", "Verified"];
 
@@ -17,14 +17,6 @@ const STAGE_COLOR: Record<JobStage, string> = {
   InProgress: "#a855f7",
   Submitted: "#f59e0b",
   Verified: "#22c55e",
-};
-
-const STAGE_EMOJI: Record<JobStage, string> = {
-  Open: "📣",
-  Claimed: "🤝",
-  InProgress: "🔨",
-  Submitted: "📸",
-  Verified: "✅",
 };
 
 const STAGE_NEXT: Record<JobStage, JobStage> = {
@@ -70,7 +62,7 @@ export const ActiveJobsScreen: React.FC<NavScreenProps> = ({ go }) => {
             <div key={stage} className="w-64 shrink-0 snap-start">
               {/* Column header */}
               <div className="flex items-center gap-2 px-1 pb-2">
-                <CivicImg emoji={STAGE_IMAGE_SEEDS[stage]} width={24} height={24} className="w-5 h-5 rounded-lg" alt={stage} />
+                <CivicImg emoji={STAGE_EMOJI[stage]} width={24} height={24} className="w-5 h-5 rounded-lg" alt={stage} />
                 <span className="text-xs font-bold text-white">{stage}</span>
                 <span
                   className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"

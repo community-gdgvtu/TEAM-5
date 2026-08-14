@@ -29,6 +29,10 @@ export interface IUserProfile {
   workerRating?: number;
   workerJobsDone?: number;
   workerVerified?: boolean;
+  /** Google OAuth fields */
+  googleId?: string;
+  authProvider?: "google" | "whatsapp";
+  avatarUrl?: string;
 }
 
 export interface IUserDocument extends IUserProfile {
@@ -57,6 +61,9 @@ const UserSchema: Schema = new Schema(
     workerRating: { type: Number, min: 0, max: 5, default: 4.5 },
     workerJobsDone: { type: Number, default: 0 },
     workerVerified: { type: Boolean, default: false },
+    googleId: { type: String, sparse: true },
+    authProvider: { type: String, enum: ["google", "whatsapp"], default: "whatsapp" },
+    avatarUrl: { type: String, default: "" },
   },
   { timestamps: true }
 );

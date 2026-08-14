@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { getFeed, createPost, likePost, commentPost, sharePost } from "../controllers/feed.controller";
+import { getFeed, createPost, likePost, commentPost, sharePost, getWorkTracking } from "../controllers/feed.controller";
 import { authMiddleware } from "../middleware/auth.middleware";
 
 /**
@@ -10,6 +10,7 @@ import { authMiddleware } from "../middleware/auth.middleware";
 const router = Router();
 
 router.get("/feed", getFeed);
+router.get("/tracking/:id", getWorkTracking);
 router.post("/feed", authMiddleware, createPost);
 router.post("/feed/:id/like", authMiddleware, likePost);
 router.post("/feed/:id/comment", authMiddleware, commentPost);

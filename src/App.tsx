@@ -26,10 +26,16 @@ const MainContent: React.FC = () => {
     }
   }, [role, currentUser?.role, setCurrentUser]);
 
-  // After a successful sign-in, jump straight into the user's dashboard.
+  // After a successful sign-in, jump straight into the user's dashboard —
+  // honouring ?next= so flows like "Report an issue" land where they started.
   useEffect(() => {
     if (route.kind === "login" && currentUser) {
-      navigate(`/${currentUser.role}/${ROLE_DEFAULT_SECTION[currentUser.role]}`);
+      const next = new URLSearchParams(window.location.search).get("next");
+      if (next && next.startsWith("/")) {
+        navigate(next);
+      } else {
+        navigate(`/${currentUser.role}/${ROLE_DEFAULT_SECTION[currentUser.role]}`);
+      }
     }
   }, [route.kind, currentUser, navigate]);
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { Store, Wrench, Wallet, MessageCircle, User, ArrowLeft, Bell } from "lucide-react";
+import { Store, Wrench, Wallet, MessageCircle, User, ArrowLeft, Bell, Trophy } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { Badge } from "../common/Badge";
 
@@ -13,18 +13,13 @@ const TABS: { key: WorkerTab; icon: React.ElementType; label: string }[] = [
   { key: "profile", icon: User, label: "Profile" },
 ];
 
-const ACCENT = "#f97316";
-
-/**
- * 🟠 Worker shell — app frame with an orange accent and a 5-tab bar.
- * Marketplace / My Jobs / Wallet / Messages / Profile.
- */
 export const WorkerShell: React.FC<{
   active: WorkerTab;
   onTab: (t: WorkerTab) => void;
   onBack?: () => void;
+  onLeaderboard?: () => void;
   children: React.ReactNode;
-}> = ({ active, onTab, onBack, children }) => {
+}> = ({ active, onTab, onBack, onLeaderboard, children }) => {
   const { currentUser } = useApp();
   const initials = (currentUser?.name || "WD")
     .split(" ")
@@ -40,7 +35,7 @@ export const WorkerShell: React.FC<{
         <header className="sticky top-0 z-20 bg-slate-950/90 backdrop-blur-xl border-b border-slate-800/60 px-4 py-3 flex items-center gap-3">
           {onBack ? (
             <button onClick={onBack} className="text-slate-300 hover:text-white transition-colors" aria-label="Back">
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4" />
             </button>
           ) : (
             <span className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-500 to-amber-600 flex items-center justify-center text-sm font-bold text-white">
@@ -51,40 +46,45 @@ export const WorkerShell: React.FC<{
             <span className="text-lg font-extrabold tracking-tight bg-gradient-to-r from-orange-400 to-amber-400 bg-clip-text text-transparent">
               Civic Fix
             </span>
-            <span className="text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-300 border border-orange-500/30">
+            <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-orange-500/15 text-orange-300 border border-orange-500/30">
               Worker
             </span>
           </div>
           <div className="flex items-center gap-2">
             <Badge tone="orange">⚡ {currentUser?.supplementaryData?.workerSkillCategory?.split(" & ")[0] || "Verified"}</Badge>
+            <button onClick={onLeaderboard} className="text-slate-300 hover:text-white transition-colors" aria-label="Leaderboard" title="Leaderboard">
+              <Trophy className="w-4 h-4" />
+            </button>
             <button className="text-slate-300 hover:text-white transition-colors" aria-label="Notifications">
-              <Bell className="w-5 h-5" />
+              <Bell className="w-4 h-4" />
             </button>
           </div>
         </header>
 
         {/* Content */}
-        <main className="flex-1 overflow-y-auto pb-24">{children}</main>
+        <main className="flex-1 overflow-y-auto pb-12">{children}</main>
 
-        {/* Bottom tab bar */}
-        <nav className="fixed bottom-0 inset-x-0 z-20 bg-slate-950/95 backdrop-blur-xl border-t border-slate-800/60">
-          <div className="max-w-md mx-auto grid grid-cols-5">
+        {/* Bottom tab bar — Discord-inspired */}
+        <nav className="border-t border-slate-700/50 px-4 py-1.5 fixed bottom-0 left-0 right-0 z-20 bg-slate-950/90 backdrop-blur-sm">
+          <div className="max-w-md mx-auto flex flex-col sm:flex-row justify-center items-center gap-1">
             {TABS.map((t) => {
               const Icon = t.icon;
               const isActive = active === t.key;
+              const tabClass = isActive
+                ? "flex-1 rounded-md px-1.5 py-1 text-xs font-medium text-white transition-colors bg-orange-600"
+                : "flex-1 rounded-md px-1.5 py-1 text-xs font-medium text-slate-300 hover:bg-slate-800/50 transition-colors";
               return (
                 <button
                   key={t.key}
                   onClick={() => onTab(t.key)}
-                  className="flex flex-col items-center justify-center py-2.5 gap-0.5"
+                  className={tabClass}
                   aria-label={t.label}
                 >
                   <Icon
-                    className="w-5 h-5"
-                    style={{ color: isActive ? ACCENT : "#94a3b8" }}
-                    strokeWidth={isActive ? 2.4 : 1.8}
+                    className="w-4.5 h-4.5 mb-0.5"
+                    style={{ color: isActive ? "#fff" : "#94a3b8" }}
                   />
-                  <span className="text-[9px] font-medium" style={{ color: isActive ? ACCENT : "#94a3b8" }}>
+                  <span className="text-[7px] font-medium">
                     {t.label}
                   </span>
                 </button>
