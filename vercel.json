@@ -6,6 +6,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://civicfix-backend.onrender.com/api/:path*"
+    },
+    {
+      "source": "/((?!assets/|.*\\..*).*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
