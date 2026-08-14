@@ -581,7 +581,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
               className="h-10 w-10 rounded-xl shadow-lg shadow-black/40"
             />
             <span className="font-display text-lg font-bold tracking-tight">
-              CivicFix <span className="text-safety">AI</span>
+              CivicFix
             </span>
           </a>
 
@@ -1259,7 +1259,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
               <div className="flex items-center gap-2.5">
                 <img src="/civic-fix.png" alt="CivicFix logo" className="h-10 w-10 rounded-xl" />
                 <span className="font-display text-lg font-bold tracking-tight">
-                  CivicFix <span className="text-safety">AI</span>
+                  CivicFix
                 </span>
               </div>
               <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500">
