@@ -32,6 +32,12 @@ export interface IIssue {
   citizenAvatar?: string;
   urgency?: "High" | "Medium" | "Low";
   aiFeatures?: AiFeature[];
+  /** AI pre-screening verdict (org report queue). */
+  aiPrescreen?: {
+    is_valid: boolean;
+    is_duplicate: boolean;
+    flag_reason: string | null;
+  };
   /** Org review state: pending | approved | rejected. */
   reviewStatus?: string;
   municipalNote?: string;
@@ -70,6 +76,11 @@ const IssueSchema: Schema = new Schema(
     citizenAvatar: { type: String },
     urgency: { type: String, enum: ["High", "Medium", "Low"], default: "Medium" },
     aiFeatures: [{ label: String, confidence: Number }],
+    aiPrescreen: {
+      is_valid: Boolean,
+      is_duplicate: Boolean,
+      flag_reason: { type: String, default: null },
+    },
     reviewStatus: { type: String, enum: ["pending", "approved", "rejected"], default: "pending", index: true },
     municipalNote: { type: String, default: "" },
     submittedAt: { type: String },

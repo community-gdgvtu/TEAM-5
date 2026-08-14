@@ -1,4 +1,4 @@
-# CivicFix AI — Full Screen Map (All 4 User Roles)
+# CivicFix — Full Screen Map (All 4 User Roles)
 
 Assumption: 4 distinct roles = **Citizen/Community**, **Organization (municipal admin)**, **Worker (contractor/"tender")**, **Investor**. Flow: citizen reports → org verifies → job goes to workers → workers bid/complete → investors fund based on quality → AI verifies → payout. Adjust if your split is different.
 

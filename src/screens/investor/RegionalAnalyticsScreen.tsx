@@ -22,42 +22,46 @@ export const RegionalAnalyticsScreen: React.FC<NavScreenProps> = () => {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-        <StatCard label="Total deployed" value={fmtMoney(data.totalDeployed)} accent="#a855f7" sub="released from escrow" />
-        <StatCard label="Jobs completed" value={data.jobsCompleted} accent="#22c55e" sub="verified & paid" />
-        <StatCard label="Areas improved" value={data.areasImproved} accent="#3b82f6" sub="districts" />
-        <StatCard label="Backers reached" value={data.backersReached.toLocaleString()} accent="#f59e0b" sub="citizens engaged" />
+        <div className="card-lift"><StatCard label="Total deployed" value={fmtMoney(data.totalDeployed)} accent="#a855f7" sub="released from escrow" /></div>
+        <div className="card-lift"><StatCard label="Jobs completed" value={data.jobsCompleted} accent="#22c55e" sub="verified & paid" /></div>
+        <div className="card-lift"><StatCard label="Areas improved" value={data.areasImproved} accent="#3b82f6" sub="districts" /></div>
+        <div className="card-lift"><StatCard label="Backers reached" value={data.backersReached.toLocaleString()} accent="#f59e0b" sub="citizens engaged" /></div>
       </div>
 
       {/* Monthly deployment */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+      <div className="card-lift bg-slate-900 border border-slate-800 rounded-2xl p-4">
         <div className="text-xs font-semibold text-slate-300 mb-3 flex items-center gap-1.5">
           <TrendingUp className="w-4 h-4 text-purple-400" /> Monthly deployment
         </div>
         <div className="flex items-end justify-between gap-2 h-32">
           {data.monthly.map((m) => (
-            <div key={m.month} className="flex-1 flex flex-col items-center justify-end gap-1">
+            <div key={m.month} className="group flex-1 flex flex-col items-center justify-end gap-1">
+              <span className="text-[10px] text-slate-400 opacity-0 transition-opacity duration-200 group-hover:opacity-100">{fmtMoney(m.amount)}</span>
               <span className="text-[10px] text-slate-400">{(m.amount / 1000).toFixed(0)}k</span>
               <div
-                className="w-full rounded-t-md bg-gradient-to-t from-purple-700 to-fuchsia-500"
+                className="w-full rounded-t-md bg-gradient-to-t from-purple-700 to-fuchsia-500 transition-all duration-300 group-hover:from-purple-600 group-hover:to-fuchsia-400 group-hover:brightness-110 group-hover:shadow-[0_-6px_20px_-4px_rgba(168,85,247,0.6)]"
                 style={{ height: `${(m.amount / maxMonthly) * 100}%` }}
               />
-              <span className="text-[10px] text-slate-500">{m.month}</span>
+              <span className="text-[10px] text-slate-500 group-hover:text-purple-300 transition-colors duration-200">{m.month}</span>
             </div>
           ))}
         </div>
       </div>
 
       {/* By category */}
-      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2.5">
+      <div className="card-lift bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2.5">
         <div className="text-xs font-semibold text-slate-300">Deployment by category</div>
         {data.byCategory.map((c) => (
-          <div key={c.category}>
+          <div key={c.category} className="group">
             <div className="flex justify-between text-xs mb-1">
-              <span className="text-slate-300">{c.category}</span>
+              <span className="text-slate-300 transition-colors duration-200 group-hover:text-white">{c.category}</span>
               <span className="text-slate-400">{fmtMoney(c.amount)}</span>
             </div>
             <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-              <div className="h-full rounded-full bg-purple-500" style={{ width: `${(c.amount / maxCat) * 100}%` }} />
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-purple-600 to-fuchsia-500 transition-all duration-700 group-hover:brightness-125"
+                style={{ width: `${(c.amount / maxCat) * 100}%`, boxShadow: "0 0 10px rgba(168,85,247,0.4)" }}
+              />
             </div>
           </div>
         ))}

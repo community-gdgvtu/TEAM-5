@@ -1,4 +1,4 @@
-# CivicFix AI — Tech Stack & Architecture
+# CivicFix — Tech Stack & Architecture
 
 **Tagline:** Decentralizing urban repair through AI-verified community crowdfunding and micro-gig economies.
 

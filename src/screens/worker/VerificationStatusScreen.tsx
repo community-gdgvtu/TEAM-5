@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NavScreenProps } from "../../navigation/types";
 import { Bot, Loader2, CheckCircle2, XCircle, ScanLine, ShieldCheck, ArrowRight } from "lucide-react";
 import { Badge } from "../../components/common/Badge";
-import { C } from "../../api/workerApi";
+import { C, getVerification, VerificationResult } from "../../api/workerApi";
 
 type Phase = "analyzing" | "pass" | "fail";
 
@@ -19,6 +19,11 @@ export const VerificationStatusScreen: React.FC<NavScreenProps> = ({ go, params 
   const [phase, setPhase] = useState<Phase>("analyzing");
   const [check, setCheck] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [verification, setVerification] = useState<VerificationResult | null | undefined>(undefined);
+
+  useEffect(() => {
+    getVerification(params?.id).then(setVerification);
+  }, [params?.id]);
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -32,13 +37,16 @@ export const VerificationStatusScreen: React.FC<NavScreenProps> = ({ go, params 
   }, []);
 
   useEffect(() => {
-    if (progress >= 100) {
-      const id = setTimeout(() => setPhase("pass"), 400);
+    if (progress >= 100 && verification !== undefined) {
+      const passed = verification ? verification.passed : true;
+      const id = setTimeout(() => setPhase(passed ? "pass" : "fail"), 400);
       return () => clearTimeout(id);
     }
-  }, [progress]);
+  }, [progress, verification]);
 
   const payout = params?.payout ?? 54000;
+  const confidencePct = Math.round((verification?.confidence ?? 0.98) * 100);
+  const reason = verification?.reason || "The \"after\" photo matches the original issue. Escrow is cleared for release.";
 
   return (
     <div className="px-4 pt-4 sm:px-6 pb-4 space-y-4">
@@ -114,11 +122,9 @@ export const VerificationStatusScreen: React.FC<NavScreenProps> = ({ go, params 
             <div>
               <div className="flex items-center justify-center gap-2">
                 <h2 className="text-xl font-extrabold text-emerald-300">Verification Passed</h2>
-                <Badge tone="green">98% match</Badge>
+                <Badge tone="green">{confidencePct}% match</Badge>
               </div>
-              <p className="text-xs text-slate-400 mt-1">
-                The "after" photo matches the original issue. Escrow is cleared for release.
-              </p>
+              <p className="text-xs text-slate-400 mt-1">{reason}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-3 text-left">
@@ -153,7 +159,7 @@ export const VerificationStatusScreen: React.FC<NavScreenProps> = ({ go, params 
             </div>
             <h2 className="text-xl font-extrabold text-rose-300">Verification Failed</h2>
             <p className="text-xs text-slate-400">
-              The AI couldn't confirm the repair matches the issue. Retake the photo from the original angle and resubmit.
+              {verification?.reason || "The AI couldn't confirm the repair matches the issue. Retake the photo from the original angle and resubmit."}
             </p>
             <button
               onClick={() => go("upload", { id: params?.id })}

@@ -1,8 +1,8 @@
-# CivicFix AI — Landing Page Design Brief
+# CivicFix — Landing Page Design Brief
 
 ## Design direction (the "prompt")
 
-Build a dark, animated, community-energy landing page for **CivicFix AI**, an app where citizens report broken street infrastructure, AI prices the repair, neighbours crowdfund it, a local worker fixes it, and AI verifies the completed work before releasing payment. Audience: Indian residents, municipal bodies, local contractors, and civic-minded funders.
+Build a dark, animated, community-energy landing page for **CivicFix**, an app where citizens report broken street infrastructure, AI prices the repair, neighbours crowdfund it, a local worker fixes it, and AI verifies the completed work before releasing payment. Audience: Indian residents, municipal bodies, local contractors, and civic-minded funders.
 
 **Visual direction:** Discord-style energy — dark background, floating animated shapes, bold rounded display type, scroll-triggered reveals, a lively bottom marquee/ticker — but with its own identity, not Discord's blurple.
 

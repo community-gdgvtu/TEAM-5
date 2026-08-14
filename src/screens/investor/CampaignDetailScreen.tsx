@@ -5,6 +5,7 @@ import { getCampaign, Campaign } from "../../api/investorApi";
 import { BadgeCheck, Star, ShieldCheck, Coins, MessageCircle, Sparkles } from "lucide-react";
 import { CampaignCover, FundingMeter, PostActions, TrustRing } from "../../components/investor/InvestorBits";
 import { Badge } from "../../components/common/Badge";
+import { CivicAvatar, CitizenAvatar } from "../../components/common/CivicImg";
 import { fmtMoney } from "../../api/investorApi";
 
 /** Screen 2 — Campaign Detail (Investor View). */
@@ -24,9 +25,7 @@ export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) =
         <div>
           {/* Header row */}
           <div className="flex items-center gap-2.5 p-3">
-        <div className="w-9 h-9 rounded-full flex items-center justify-center text-lg" style={{ background: c.gradient }}>
-          {c.emoji}
-        </div>
+        <CivicAvatar name={c.org} size={36} className="ring-2 ring-slate-700/60" />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">
             <span className="text-sm font-semibold text-white truncate">{c.org}</span>
@@ -34,7 +33,7 @@ export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) =
           </div>
           <p className="text-xs text-slate-400">{c.area} · {c.location}</p>
         </div>
-        <button onClick={() => go("trust", { id: c.id })} className="text-xs text-purple-300 font-semibold">
+        <button onClick={() => go("trust", { id: c.id })} className="text-xs text-purple-300 font-semibold transition-all duration-200 hover:text-purple-200 hover:scale-105 active:scale-95">
           Trust →
         </button>
       </div>
@@ -50,13 +49,15 @@ export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) =
         <FundingMeter campaign={c} />
 
         {/* Tabs */}
-        <div className="flex gap-1 bg-slate-900 rounded-xl p-1">
+        <div className="flex gap-1 bg-slate-900 rounded-xl p-1 border border-slate-800/60">
           {(["overview", "bids", "engage"] as const).map((t) => (
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold capitalize transition-colors ${
-                tab === t ? "bg-purple-600 text-white" : "text-slate-400"
+              className={`flex-1 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all duration-300 ${
+                tab === t
+                  ? "bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white shadow-lg shadow-purple-900/30 scale-[1.02]"
+                  : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 active:scale-95"
               }`}
             >
               {t}
@@ -67,23 +68,23 @@ export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) =
         {tab === "overview" && (
           <div className="space-y-3">
             <div className="grid grid-cols-3 gap-2">
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
+              <div className="card-lift bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
                 <Sparkles className="w-4 h-4 mx-auto text-purple-400" />
                 <div className="text-lg font-bold text-white mt-1">{Math.round(c.aiConfidence * 100)}%</div>
                 <div className="text-[10px] text-slate-400">AI confidence</div>
               </div>
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
+              <div className="card-lift bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
                 <Star className="w-4 h-4 mx-auto text-amber-400" />
                 <div className="text-lg font-bold text-white mt-1">{c.workerRating}</div>
                 <div className="text-[10px] text-slate-400">Worker rating</div>
               </div>
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
+              <div className="card-lift bg-slate-900 border border-slate-800 rounded-xl p-3 text-center">
                 <ShieldCheck className="w-4 h-4 mx-auto text-emerald-400" />
                 <div className="text-lg font-bold text-white mt-1">{c.impactScore}</div>
                 <div className="text-[10px] text-slate-400">Impact</div>
               </div>
             </div>
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-3">
+            <div className="card-lift bg-slate-900 border border-slate-800 rounded-xl p-3">
               <div className="text-xs font-semibold text-slate-300 mb-1">Cost estimate (AI)</div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate-400">Target</span>
@@ -96,7 +97,7 @@ export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) =
             </div>
             <button
               onClick={() => go("trust", { id: c.id })}
-              className="w-full py-2.5 rounded-xl bg-purple-600/15 border border-purple-500/30 text-purple-300 text-sm font-semibold"
+              className="w-full py-2.5 rounded-xl bg-purple-600/15 border border-purple-500/30 text-purple-300 text-sm font-semibold transition-all duration-300 hover:bg-purple-600/30 hover:border-purple-500/60 hover:scale-[1.02] active:scale-95"
             >
               View full Trust & Quality Score →
             </button>
@@ -107,7 +108,7 @@ export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) =
           <div className="space-y-2">
             <div className="text-xs font-semibold text-slate-300">Worker bids ({c.workerBids.length})</div>
             {c.workerBids.map((b) => (
-              <div key={b.id} className="bg-slate-900 border border-slate-800 rounded-xl p-3">
+              <div key={b.id} className="card-lift bg-slate-900 border border-slate-800 rounded-xl p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-white">{b.worker}</span>
@@ -122,7 +123,7 @@ export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) =
                 </div>
                 <button
                   onClick={() => go("fund", { id: c.id, bid: b.id })}
-                  className="mt-2 w-full py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold"
+                  className="mt-2 w-full py-2 rounded-lg bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white text-sm font-semibold shadow-lg shadow-purple-900/30 transition-all duration-300 hover:from-purple-500 hover:to-fuchsia-500 hover:scale-[1.02] active:scale-[0.98]"
                 >
                   Accept quote & fund
                 </button>
@@ -137,8 +138,8 @@ export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) =
               <MessageCircle className="w-3.5 h-3.5" /> Community ({c.comments.length})
             </div>
             {c.comments.map((m, i) => (
-              <div key={i} className="bg-slate-900 border border-slate-800 rounded-xl p-3 flex gap-2.5">
-                <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-base shrink-0">{m.avatar}</div>
+              <div key={i} className="card-lift bg-slate-900 border border-slate-800 rounded-xl p-3 flex gap-2.5">
+                <CitizenAvatar seed={m.user} size={32} className="ring-1 ring-slate-700/60 shrink-0" />
                 <div className="flex-1">
                   <div className="text-xs">
                     <span className="font-semibold text-white">{m.user}</span> <span className="text-slate-500">· {m.time}</span>
@@ -153,7 +154,7 @@ export const CampaignDetailScreen: React.FC<NavScreenProps> = ({ go, params }) =
 
         <button
           onClick={() => go("fund", { id: c.id })}
-          className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold shadow-lg shadow-purple-900/30"
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-bold shadow-lg shadow-purple-900/40 transition-all duration-300 hover:scale-[1.02] hover:shadow-purple-900/60 active:scale-[0.98]"
         >
           Fund this campaign
         </button>

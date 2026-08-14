@@ -4,6 +4,7 @@ import { useFetch } from "../../hooks/useFetch";
 import { getCompletionReport, Campaign } from "../../api/investorApi";
 import { Sparkles, CheckCircle2, ArrowRight } from "lucide-react";
 import { Badge } from "../../components/common/Badge";
+import { CivicImg } from "../../components/common/CivicImg";
 
 /** Screen 6 — Completion & Verification Report. */
 export const CompletionReportScreen: React.FC<NavScreenProps> = ({ params, go }) => {
@@ -24,21 +25,33 @@ export const CompletionReportScreen: React.FC<NavScreenProps> = ({ params, go })
       {/* Before / After */}
       {hasBeforeAfter ? (
         <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-2xl overflow-hidden border border-slate-800">
-            <div className="h-40 flex items-center justify-center text-6xl" style={{ background: c.gradient, filter: "saturate(0.4) brightness(0.7)" }}>
-              {c.emoji}
+          <div className="group rounded-2xl overflow-hidden border border-slate-800 card-lift">
+            <div className="relative h-40 overflow-hidden" style={{ background: c.gradient }}>
+              <CivicImg
+                emoji={c.emoji}
+                alt="Before"
+                className="absolute inset-0 h-full w-full transition-transform duration-700 ease-out group-hover:scale-110"
+                rounded=""
+              />
+              <div className="absolute inset-0" style={{ background: "linear-gradient(rgba(15,23,42,0.4), rgba(15,23,42,0.4))" }} />
+              <div className="absolute top-1.5 left-1.5 bg-slate-950/60 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide text-slate-300 border border-white/10">Before</div>
             </div>
             <div className="p-2.5">
-              <div className="text-[10px] uppercase tracking-wide text-slate-500">Before</div>
               <p className="text-xs text-slate-300">{c.beforeAfter!.before}</p>
             </div>
           </div>
-          <div className="rounded-2xl overflow-hidden border border-emerald-500/30">
-            <div className="h-40 flex items-center justify-center text-6xl" style={{ background: c.gradient }}>
-              {c.emoji}
+          <div className="group rounded-2xl overflow-hidden border border-emerald-500/30 card-lift">
+            <div className="relative h-40 overflow-hidden" style={{ background: c.gradient }}>
+              <CivicImg
+                emoji={c.emoji}
+                alt="After"
+                className="absolute inset-0 h-full w-full transition-transform duration-700 ease-out group-hover:scale-110"
+                rounded=""
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-emerald-500/10 to-transparent" />
+              <div className="absolute top-1.5 left-1.5 bg-emerald-500/20 backdrop-blur-sm rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide text-emerald-300 border border-emerald-500/30">After</div>
             </div>
             <div className="p-2.5">
-              <div className="text-[10px] uppercase tracking-wide text-emerald-400">After</div>
               <p className="text-xs text-slate-300">{c.beforeAfter!.after}</p>
             </div>
           </div>
@@ -60,7 +73,7 @@ export const CompletionReportScreen: React.FC<NavScreenProps> = ({ params, go })
 
       {/* Impact summary */}
       {c.impactSummary && (
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4">
+        <div className="card-lift bg-slate-900 border border-slate-800 rounded-2xl p-4">
           <div className="text-xs font-semibold text-slate-300 mb-1.5">Impact summary</div>
           <p className="text-sm text-slate-300">{c.impactSummary}</p>
         </div>
@@ -69,7 +82,7 @@ export const CompletionReportScreen: React.FC<NavScreenProps> = ({ params, go })
       {c.payout && (
         <button
           onClick={() => go("payout", { id: c.id })}
-          className="w-full py-3 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-fuchsia-600 hover:from-purple-500 hover:to-fuchsia-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-purple-900/40 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
         >
           View payout confirmation <ArrowRight className="w-4 h-4" />
         </button>

@@ -1,4 +1,4 @@
-# CivicFix AI — Team Assignments v2 (Feed + Messages UI format)
+# CivicFix — Team Assignments v2 (Feed + Messages UI format)
 
 Every role now follows the **same app shell pattern** (Instagram-style bottom tabs + Reddit-style feed cards + a dedicated Messages section), so the 4 apps feel like one product even though 4 different people are building them.
 

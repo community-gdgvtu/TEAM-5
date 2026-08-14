@@ -1,6 +1,6 @@
-# 🚀 TEAM-5 // CivicFix AI — Product Devlog & Feed
+# 🚀 TEAM-5 // CivicFix — Product Devlog & Feed
 
-Welcome to the official build log for **CivicFix AI** (fka PatchRoots). We’re documenting our journey from "annoyed citizens screaming into the municipal void" to building a decentralized, AI-verified micro-gig marketplace that actually gets street repairs done. [cite: 1]
+Welcome to the official build log for **CivicFix** (fka PatchRoots). We’re documenting our journey from "annoyed citizens screaming into the municipal void" to building a decentralized, AI-verified micro-gig marketplace that actually gets street repairs done. [cite: 1]
 
 No endless bureaucratic black holes. No 6-month wait times for a $50 patch. Just snap, pool funds, fix, and verify. [cite: 1]
 
@@ -20,7 +20,7 @@ We’re flipping the script: **Your street's broken streetlight isn't the govern
 ---
 
 ### 💡 What We’re Cooking
-Instead of waiting on slow-moving budgets, **CivicFix AI** connects three key dots:
+Instead of waiting on slow-moving budgets, **CivicFix** connects three key dots:
 1. **Hyper-Local Crowdfunding:** Micro-donations pooled directly by people who walk that street every single day [cite: 1].
 2. **Local Micro-Gig Workforce:** Neighborhood handymen and independent contractors taking on quick, small fixes instead of waiting for enterprise contracts [cite: 1].
 3. **AI Proof-of-Work:** Computer vision that acts as an unbiased middleman to verify damage severity *and* confirm the job was done right before releasing payouts [cite: 1].

@@ -95,6 +95,32 @@ export const VerifyReportScreen: React.FC<NavScreenProps> = ({ go, params }) => 
         </div>
       </motion.div>
 
+      {/* AI pre-screen verdict */}
+      {report.aiPrescreen && (
+        <div
+          className={`p-3 rounded-xl border flex items-start gap-2.5 ${
+            report.aiPrescreen.is_valid ? "bg-emerald-500/10 border-emerald-500/30" : "bg-rose-500/10 border-rose-500/30"
+          }`}
+        >
+          <Bot className={`w-4 h-4 shrink-0 mt-0.5 ${report.aiPrescreen.is_valid ? "text-emerald-400" : "text-rose-400"}`} />
+          <div className="text-xs">
+            {report.aiPrescreen.is_valid ? (
+              <p className="text-emerald-200">
+                <span className="font-semibold">AI pre-screen passed.</span>{" "}
+                {report.aiPrescreen.is_duplicate
+                  ? "Flagged as a likely duplicate — compare against nearby reports before approving."
+                  : "Photo matches the selected category. Ready for human verification."}
+              </p>
+            ) : (
+              <p className="text-rose-200">
+                <span className="font-semibold">AI pre-screen flagged this report.</span>{" "}
+                {report.aiPrescreen.flag_reason || "Photo does not match the selected category."}
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* AI Feature Detection */}
       <div className="p-4 bg-slate-900 border border-blue-500/30 rounded-2xl space-y-3">
         <div className="flex items-center justify-between">

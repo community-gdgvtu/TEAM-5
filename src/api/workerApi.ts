@@ -116,14 +116,27 @@ export async function submitBid(
 export async function uploadProof(
   jobId: string,
   input: { afterPhotoUrl: string; note?: string }
-): Promise<{ jobId: string; status: string }> {
+): Promise<{ jobId: string; status: string; verification?: VerificationResult }> {
   return withFallback(
-    apiFetch(`/api/jobs/${jobId}/proof`, {
+    apiFetch<{ jobId: string; status: string; verification?: VerificationResult }>(`/api/jobs/${jobId}/proof`, {
       method: "POST",
       headers: { Authorization: `Bearer ${getDemoSessionToken()}` },
       body: JSON.stringify(input),
     }),
     { jobId, status: "Submitted" }
+  );
+}
+
+export interface VerificationResult {
+  passed: boolean;
+  confidence: number;
+  reason: string;
+}
+
+export async function getVerification(jobId: string): Promise<VerificationResult | null> {
+  return withFallback(
+    apiFetch<{ verification: VerificationResult }>(`/api/jobs/${jobId}/verification`).then((d) => d.verification),
+    null
   );
 }
 

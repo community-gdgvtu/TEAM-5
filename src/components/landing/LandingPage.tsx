@@ -577,7 +577,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           <a href="#" className="flex items-center gap-2.5">
             <img
               src="/civic-fix.png"
-              alt="CivicFix AI logo"
+              alt="CivicFix logo"
               className="h-10 w-10 rounded-xl shadow-lg shadow-black/40"
             />
             <span className="font-display text-lg font-bold tracking-tight">
@@ -1257,7 +1257,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
               <div className="flex items-center gap-2.5">
-                <img src="/civic-fix.png" alt="CivicFix AI logo" className="h-10 w-10 rounded-xl" />
+                <img src="/civic-fix.png" alt="CivicFix logo" className="h-10 w-10 rounded-xl" />
                 <span className="font-display text-lg font-bold tracking-tight">
                   CivicFix <span className="text-safety">AI</span>
                 </span>
@@ -1296,7 +1296,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           </div>
           <div className="mt-12 flex flex-col gap-3 border-t border-white/5 pt-6 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-slate-600">
-              © {new Date().getFullYear()} CivicFix AI — a Google AI Studio hackathon build.
+              © {new Date().getFullYear()} CivicFix — a Google AI Studio hackathon build.
             </p>
             <p className="text-[11px] text-slate-600">
               Demo imagery is placeholder and must be swapped for licensed photography before a real launch.

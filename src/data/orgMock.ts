@@ -31,6 +31,12 @@ export interface OrgReport {
   status: ReportStatus;
   urgency: "High" | "Medium" | "Low";
   municipalNote?: string;
+  /** AI pre-screening verdict surfaced on the verify screen. */
+  aiPrescreen?: {
+    is_valid: boolean;
+    is_duplicate: boolean;
+    flag_reason: string | null;
+  };
 }
 
 const reports: OrgReport[] = [

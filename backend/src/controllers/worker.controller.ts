@@ -2,9 +2,11 @@ import { Request, Response } from "express";
 import { JobModel } from "../models/Job.model";
 import { BidModel } from "../models/Bid.model";
 import { ReviewModel } from "../models/Review.model";
+import { IssueModel } from "../models/Issue.model";
 import { UserModel } from "../models/User.model";
 import { isMongoConnected, getUserModel } from "../config/db";
 import { createFeedPost } from "../services/feed.service";
+import { verifyCompletion, AiVerifyResult } from "../services/ai.service";
 import {
   demoJobs,
   demoBids,
@@ -205,6 +207,8 @@ export async function uploadProof(req: Request, res: Response) {
   const area = demo?.area || "—";
   const location = demo?.location || "India";
   try {
+    const verification = await runVerification(jobId, afterPhotoUrl);
+
     if (!isMongoConnected()) {
       await createFeedPost({
         type: "completed",
@@ -229,7 +233,7 @@ export async function uploadProof(req: Request, res: Response) {
           after: "Completed work verified on site.",
         },
       });
-      return res.json({ jobId, status: "Submitted", afterPhotoUrl });
+      return res.json({ jobId, status: "Submitted", afterPhotoUrl, verification });
     }
     await JobModel.updateOne({ id: jobId }, { status: "Submitted" });
     await createFeedPost({
@@ -255,9 +259,48 @@ export async function uploadProof(req: Request, res: Response) {
         after: "Completed work verified on site.",
       },
     });
-    return res.json({ jobId, status: "Submitted", afterPhotoUrl });
+    return res.json({ jobId, status: "Submitted", afterPhotoUrl, verification });
   } catch (err) {
     return res.status(500).json({ error: "Failed to upload proof." });
+  }
+}
+
+/** In-memory cache of verification results, keyed by jobId. */
+const verificationCache = new Map<string, AiVerifyResult>();
+
+async function runVerification(jobId: string, afterPhotoUrl?: string): Promise<AiVerifyResult> {
+  if (verificationCache.has(jobId)) return verificationCache.get(jobId)!;
+  let beforePhotoUrl = "";
+  try {
+    if (isMongoConnected()) {
+      const job = await JobModel.findOne({ id: jobId }).lean();
+      if (job?.issueId) {
+        const issue = await IssueModel.findOne({ id: job.issueId }).lean();
+        beforePhotoUrl = issue?.photoUrl || "";
+      }
+    }
+  } catch {
+    /* best-effort before-photo lookup */
+  }
+  const demo = demoJobs.find((j) => j.id === jobId);
+  const result = await verifyCompletion({
+    beforePhotoUrl,
+    afterPhotoUrl: afterPhotoUrl || "",
+    issueType: demo?.category || "civic repair",
+  });
+  verificationCache.set(jobId, result);
+  return result;
+}
+
+export async function getJobVerification(req: Request, res: Response) {
+  const { jobId } = req.params;
+  try {
+    const cached = verificationCache.get(jobId);
+    if (cached) return res.json({ verification: cached, source: "ai" });
+    const result = await runVerification(jobId, "");
+    return res.json({ verification: result, source: "fallback" });
+  } catch (err) {
+    return res.status(500).json({ error: "Failed to load verification." });
   }
 }
 

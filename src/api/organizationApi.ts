@@ -173,6 +173,24 @@ export async function resolveOrgDisputeApi(id: string): Promise<Dispute> {
   );
 }
 
+export interface AiDisputeReview {
+  assessment: string;
+  second_opinion: "pass" | "fail" | "uncertain";
+  confidence: number;
+}
+
+export async function aiReviewDisputeApi(id: string): Promise<AiDisputeReview> {
+  return withFallback(
+    apiFetch<{ review: AiDisputeReview }>(`/api/organization/disputes/${id}/ai-review`, { method: "POST" }).then((d) => d.review),
+    {
+      assessment:
+        "Rule-based re-check: the complaint summary was weighed against the stored AI verification record. Awaiting human moderator review.",
+      second_opinion: "uncertain",
+      confidence: 0.5,
+    }
+  );
+}
+
 // ------------------------------------------------------------- workers
 
 export async function getOrgWorkersApi(): Promise<OrgWorker[]> {

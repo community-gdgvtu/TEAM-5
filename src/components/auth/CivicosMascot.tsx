@@ -81,18 +81,28 @@ export const CivicosMascot: React.FC<CivicosMascotProps> = ({
             ? { y: 0 }
             : {
                 y: [0, -6, 0],
+                rotate: [0, 1.5, 0, -1.5, 0],
               }
         }
         transition={{
-          duration: 3.5,
-          repeat: Infinity,
-          ease: "easeInOut",
+          y: { duration: 3.5, repeat: Infinity, ease: "easeInOut" },
+          rotate: { duration: 5, repeat: Infinity, ease: "easeInOut" },
         }}
         onClick={() => setIsDismissed(false)}
         title="CIVICOS AI Guide"
       >
+        {/* Radiating ping ring */}
+        <div
+          className="absolute inset-0 rounded-full bg-purple-500/40"
+          style={{ animation: "ping-ring 3.2s ease-out infinite" }}
+        />
+
         {/* Glow backdrop */}
-        <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur-sm opacity-50 group-hover:opacity-80 transition-opacity" />
+        <motion.div
+          className="absolute -inset-1 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full blur-sm"
+          animate={prefersReducedMotion ? { opacity: 0.55 } : { opacity: [0.5, 0.85, 0.5] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+        />
 
         <svg
           width="76"

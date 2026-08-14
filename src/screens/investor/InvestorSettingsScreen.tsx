@@ -20,11 +20,11 @@ export const InvestorSettingsScreen: React.FC<NavScreenProps> = ({ go, back }) =
     onClick,
     tone = "text-slate-300",
   }) => (
-    <button onClick={onClick} className="w-full flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3 text-left">
-      <Icon className="w-4 h-4 text-slate-400" />
+    <button onClick={onClick} className="group w-full flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3 text-left transition-all duration-300 hover:border-purple-500/40 hover:bg-purple-600/5 hover:translate-x-1 hover:shadow-lg hover:shadow-purple-900/20 active:scale-[0.99]">
+      <Icon className="w-4 h-4 text-slate-400 transition-all duration-300 group-hover:text-purple-300 group-hover:scale-110" />
       <span className={`flex-1 text-sm ${tone}`}>{label}</span>
       {value && <span className="text-xs text-slate-400">{value}</span>}
-      <ChevronRight className="w-4 h-4 text-slate-600" />
+      <ChevronRight className="w-4 h-4 text-slate-600 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-purple-300" />
     </button>
   );
 
@@ -53,17 +53,17 @@ export const InvestorSettingsScreen: React.FC<NavScreenProps> = ({ go, back }) =
           value={currentUser?.supplementaryData?.investorKycStatus || "Verified"}
           tone="text-emerald-300"
         />
-        <div className="w-full flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3">
+        <div className="w-full flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3 transition-colors duration-300 hover:border-slate-700">
           <Bell className="w-4 h-4 text-slate-400" />
           <span className="flex-1 text-sm text-slate-300">Notifications</span>
           <Toggle on={notifs} onClick={() => setNotifs((v) => !v)} />
         </div>
-        <div className="w-full flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3">
+        <div className="w-full flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3 transition-colors duration-300 hover:border-slate-700">
           <CheckCircle2 className="w-4 h-4 text-slate-400" />
           <span className="flex-1 text-sm text-slate-300">Impact alerts</span>
           <Toggle on={impactAlerts} onClick={() => setImpactAlerts((v) => !v)} />
         </div>
-        <div className="w-full flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3">
+        <div className="w-full flex items-center gap-3 bg-slate-900 border border-slate-800 rounded-xl px-3.5 py-3 transition-colors duration-300 hover:border-slate-700">
           <SparklesLite />
           <span className="flex-1 text-sm text-slate-300">Auto-fund top-trust campaigns</span>
           <Toggle on={autoFund} onClick={() => setAutoFund((v) => !v)} />
@@ -77,7 +77,7 @@ export const InvestorSettingsScreen: React.FC<NavScreenProps> = ({ go, back }) =
             logout();
             navigate("/");
           }}
-          className="w-full py-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm font-semibold flex items-center justify-center gap-2"
+          className="w-full py-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm font-semibold flex items-center justify-center gap-2 transition-all duration-300 hover:bg-rose-500/20 hover:border-rose-500/50 hover:scale-[1.02] active:scale-95"
         >
           <LogOut className="w-4 h-4" /> Log out
         </button>

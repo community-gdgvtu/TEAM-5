@@ -1,4 +1,4 @@
-Project Title: CivicFix AI (or PatchRoots)
+Project Title: CivicFix (or PatchRoots)
 Tagline: Decentralizing urban repair through AI-verified community crowdfunding and micro-gig economies.
 
 The Problem Statement: The "Civic Execution Gap"

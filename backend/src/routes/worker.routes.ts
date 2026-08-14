@@ -5,6 +5,7 @@ import {
   getMyBids,
   submitBid,
   uploadProof,
+  getJobVerification,
   getActiveJobs,
   getWallet,
   getWorkerProfile,
@@ -25,6 +26,7 @@ router.get("/jobs/:id", getJobDetail);
 router.post("/jobs/:jobId/bids", authMiddleware, submitBid);
 router.get("/bids", getMyBids);
 router.post("/jobs/:jobId/proof", authMiddleware, uploadProof);
+router.get("/jobs/:jobId/verification", getJobVerification);
 
 router.get("/jobs/active/all", getActiveJobs);
 router.get("/wallet", getWallet);

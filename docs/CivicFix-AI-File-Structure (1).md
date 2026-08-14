@@ -1,4 +1,4 @@
-# CivicFix AI — Project File Structure (Implemented)
+# CivicFix — Project File Structure (Implemented)
 
 > This is now the **actual** repo layout. The app is a single **Vite + React + Tailwind** web app served by an **Express + MongoDB** backend (with a graceful in-memory fallback when Mongo is down). Each teammate works inside their **own role folder** on both frontend and backend — that's how merge conflicts stay near zero.
 

@@ -18,7 +18,7 @@ Local communities suffer from deteriorating micro-infrastructure (potholes, brok
 
 ## The Solution
 
-CivicFix AI closes the loop with an AI-powered, community-driven repair platform:
+CivicFix closes the loop with an AI-powered, community-driven repair platform:
 
 1. **Citizen reports** a civic issue with a photo (auto geo-tagged)
 2. **AI estimates** the repair cost via computer vision

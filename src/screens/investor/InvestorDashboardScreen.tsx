@@ -6,6 +6,7 @@ import { useApp } from "../../context/AppContext";
 import { Search, BadgeCheck } from "lucide-react";
 import { CampaignCover, FundingMeter, PostActions } from "../../components/investor/InvestorBits";
 import { Badge } from "../../components/common/Badge";
+import { CivicAvatar, CitizenAvatar } from "../../components/common/CivicImg";
 
 /** Screen 1 — Investor Dashboard: Instagram-style feed of campaigns needing funding. */
 export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
@@ -41,15 +42,15 @@ export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
   return (
     <div className="px-3 pt-3 sm:px-5 sm:pt-5 space-y-4">
       {/* Discover bar */}
-      <div className="flex items-center gap-2">
-        <div className="flex-1 flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-full px-3.5 py-2">
+      <div className="flex items-center gap-2 rise-in">
+        <div className="flex-1 flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-full px-3.5 py-2 transition-all duration-300 focus-within:border-purple-500/50 focus-within:shadow-lg focus-within:shadow-purple-900/20 hover:border-slate-700">
           <Search className="w-4 h-4 text-slate-500" />
           <input
             placeholder="Search campaigns, areas, orgs…"
             className="bg-transparent outline-none text-sm text-slate-200 w-full placeholder-slate-500"
           />
         </div>
-        <button className="px-3 py-2 rounded-full bg-purple-600/15 text-purple-300 text-xs font-semibold border border-purple-500/30">
+        <button className="px-3 py-2 rounded-full bg-purple-600/15 text-purple-300 text-xs font-semibold border border-purple-500/30 transition-all duration-300 hover:bg-purple-600/30 hover:scale-105 hover:shadow-lg hover:shadow-purple-900/30 active:scale-95">
           Impact
         </button>
       </div>
@@ -61,15 +62,14 @@ export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
           const comments = getComments(c);
           const shown = showAll[c.id] ? comments : comments.slice(-2);
           return (
-            <article key={c.id} className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
+            <article key={c.id} className="group card-lift sheen bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col">
               {/* Post header */}
               <div className="flex items-center gap-2.5 p-3">
-                <div
-                  className="w-9 h-9 rounded-full flex items-center justify-center text-lg shrink-0"
-                  style={{ background: c.gradient }}
-                >
-                  {c.emoji}
-                </div>
+                <CivicAvatar
+                  name={c.org}
+                  size={36}
+                  className="ring-2 ring-slate-700/60 transition-all duration-300 group-hover:ring-purple-500/50"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-1">
                     <span className="text-sm font-semibold text-white truncate">{c.org}</span>
@@ -79,7 +79,7 @@ export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
                 </div>
                 <button
                   onClick={() => go("detail", { id: c.id })}
-                  className="text-slate-500 hover:text-slate-300 text-2xl leading-none"
+                  className="w-7 h-7 rounded-full text-slate-500 transition-all duration-200 hover:bg-slate-800 hover:text-slate-200 hover:scale-110 active:scale-90 text-xl leading-none"
                   aria-label="Open"
                 >
                   ⋯
@@ -87,9 +87,9 @@ export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
               </div>
 
               {/* Cover — stays on dashboard */}
-              <div className="block w-full text-left">
+              <button onClick={() => go("detail", { id: c.id })} className="block w-full text-left">
                 <CampaignCover campaign={c} />
-              </div>
+              </button>
 
               {/* Body */}
               <div className="p-3 flex flex-col gap-2.5">
@@ -110,7 +110,7 @@ export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
 
                 <div className="flex flex-wrap gap-1.5">
                   {c.hashtags.map((h) => (
-                    <span key={h} className="text-xs text-purple-400">#{h.replace("#", "")}</span>
+                    <span key={h} className="text-xs text-purple-400 transition-colors duration-200 hover:text-purple-200 cursor-pointer">#{h.replace("#", "")}</span>
                   ))}
                 </div>
 
@@ -119,9 +119,7 @@ export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
                   <div className="space-y-2.5">
                     {shown.map((cm, i) => (
                       <div key={i} className="flex items-start gap-2">
-                        <span className="w-7 h-7 rounded-full bg-slate-800 flex items-center justify-center text-sm shrink-0">
-                          {cm.avatar}
-                        </span>
+                        <CitizenAvatar seed={cm.user} size={28} className="ring-1 ring-slate-700/60 shrink-0" />
                         <div className="min-w-0">
                           <p className="text-sm leading-snug">
                             <span className="font-semibold text-white">{cm.user}</span>{" "}
@@ -134,7 +132,7 @@ export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
                     {comments.length > 2 && !showAll[c.id] && (
                       <button
                         onClick={() => setShowAll((prev) => ({ ...prev, [c.id]: true }))}
-                        className="text-xs text-slate-400"
+                        className="text-xs text-slate-400 transition-colors duration-200 hover:text-purple-300"
                       >
                         View all {comments.length} comments
                       </button>
@@ -143,7 +141,7 @@ export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
                 )}
 
                 {/* Comment input */}
-                <div className="flex items-center gap-2 mt-1 border-t border-slate-800 pt-2.5">
+                <div className="flex items-center gap-2 mt-1 border-t border-slate-800 pt-2.5 transition-colors duration-300 focus-within:border-purple-500/40">
                   <input
                     ref={(el) => {
                       inputRefs.current[c.id] = el;
@@ -162,7 +160,7 @@ export const InvestorDashboardScreen: React.FC<NavScreenProps> = ({ go }) => {
                   <button
                     onClick={() => addComment(c)}
                     disabled={!(drafts[c.id] || "").trim()}
-                    className="text-sm font-semibold text-sky-400 disabled:opacity-40"
+                    className="text-sm font-semibold text-sky-400 disabled:opacity-40 transition-all duration-200 hover:text-sky-300 hover:scale-105 active:scale-95"
                   >
                     Post
                   </button>

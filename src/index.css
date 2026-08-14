@@ -60,6 +60,53 @@
   to { background-position: 200% center; }
 }
 
+/* ---------- App-level ambient + micro-interactions ---------- */
+@keyframes aurora-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(34px, -22px) scale(1.15); }
+}
+
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rise-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Hover sheen sweep — add `.sheen` to an overflow-hidden element */
+.sheen { position: relative; overflow: hidden; }
+.sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  transform: translateX(-130%);
+  background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,0.14) 50%, transparent 58%);
+}
+.sheen:hover::after {
+  animation: sheen-sweep 0.9s ease forwards;
+}
+@keyframes sheen-sweep {
+  to { transform: translateX(130%); }
+}
+
+/* Card hover lift + purple glow */
+.card-lift {
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+}
+.card-lift:hover {
+  transform: translateY(-4px);
+  border-color: rgba(168, 85, 247, 0.45);
+  box-shadow: 0 22px 44px -20px rgba(168, 85, 247, 0.5);
+}
+
+.rise-in {
+  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 html {
   scroll-behavior: smooth;
 }

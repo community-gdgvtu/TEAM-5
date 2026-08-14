@@ -9,6 +9,7 @@ import {
   advanceOrgJob,
   getOrgDisputes,
   resolveOrgDispute,
+  aiReviewOrgDispute,
   getOrgWorkers,
   setWorkerStatus,
   setWorkerVerified,
@@ -42,6 +43,7 @@ router.post("/organization/jobs/:id/advance", advanceOrgJob);
 
 // Disputes
 router.get("/organization/disputes", getOrgDisputes);
+router.post("/organization/disputes/:id/ai-review", aiReviewOrgDispute);
 router.post("/organization/disputes/:id/resolve", resolveOrgDispute);
 
 // Worker directory

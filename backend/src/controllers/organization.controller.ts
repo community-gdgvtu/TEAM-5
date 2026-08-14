@@ -7,6 +7,7 @@ import { DisputeModel } from "../models/Dispute.model";
 import { OrganizationModel } from "../models/Organization.model";
 import { isMongoConnected } from "../config/db";
 import { createFeedPost } from "../services/feed.service";
+import { reviewDispute } from "../services/ai.service";
 import {
   demoReports,
   demoJobs,
@@ -61,6 +62,7 @@ function mapIssue(doc: any) {
     aiEstimate: doc.aiEstimate?.amount ?? 0,
     aiConfidence: doc.aiEstimate?.confidence ?? 0,
     aiFeatures: doc.aiFeatures || [],
+    aiPrescreen: doc.aiPrescreen || undefined,
     status: doc.reviewStatus || "pending",
     urgency: doc.urgency || "Medium",
     municipalNote: doc.municipalNote || undefined,
@@ -451,6 +453,28 @@ export async function resolveOrgDispute(req: Request, res: Response) {
   } catch (err) {
     console.error("[ORG] resolveOrgDispute:", err);
     return res.status(500).json({ error: "Failed to resolve dispute." });
+  }
+}
+
+/** AI second-opinion re-check on an open dispute (Gemini, text-first). */
+export async function aiReviewOrgDispute(req: Request, res: Response) {
+  const { id } = req.params;
+  try {
+    let summary = "";
+    if (!isMongoConnected()) {
+      const mock = demoDisputes.find((d) => d.id === id);
+      if (!mock) return res.status(404).json({ error: "Dispute not found." });
+      summary = mock.summary;
+    } else {
+      const dispute = await DisputeModel.findOne({ id }).lean();
+      if (!dispute) return res.status(404).json({ error: "Dispute not found." });
+      summary = dispute.summary || "";
+    }
+    const review = await reviewDispute({ note: summary });
+    return res.json({ disputeId: id, review });
+  } catch (err) {
+    console.error("[ORG] aiReviewOrgDispute:", err);
+    return res.status(500).json({ error: "Failed to run AI review." });
   }
 }
 

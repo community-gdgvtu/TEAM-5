@@ -583,14 +583,21 @@ export const LoginSignupFlow: React.FC = () => {
           </div>
         </div>
 
-        {/* CIVICOS Mascot AI Guide */}
-        <div className="w-full flex justify-end mb-1">
-          <CivicosMascot
-            currentStep={step}
-            isReturningUser={isReturningUser}
-            userName={returningUserName}
-          />
-        </div>
+        {/* CIVICOS Mascot AI Guide — floating on the left side */}
+        <motion.div
+          className="fixed left-3 bottom-24 sm:left-5 lg:top-1/2 lg:bottom-auto lg:-translate-y-1/2 z-40 pointer-events-none"
+          initial={{ opacity: 0, x: -70, rotate: -4 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 110, damping: 15, delay: 0.35 }}
+        >
+          <div className="pointer-events-auto">
+            <CivicosMascot
+              currentStep={step}
+              isReturningUser={isReturningUser}
+              userName={returningUserName}
+            />
+          </div>
+        </motion.div>
 
         {/* Main Oscillating Form Card Shell */}
         <motion.div

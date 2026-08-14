@@ -1,4 +1,4 @@
-# CivicFix AI — Next Screens (Critical Demo Path)
+# CivicFix — Next Screens (Critical Demo Path)
 
 This doc documents the additional screens needed for the minimum viable demo, prioritizing the core loop steps 1–4 + 6 (citizen report → AI estimate → crowdfunding → worker job → completion proof).
 

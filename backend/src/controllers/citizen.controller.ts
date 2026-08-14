@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { IssueModel } from "../models/Issue.model";
 import { CampaignModel } from "../models/Campaign.model";
-import { estimateCost } from "../services/ai.service";
+import { estimateCost, prescreenReport } from "../services/ai.service";
 import { createFeedPost, FeedPostInput } from "../services/feed.service";
 import { isMongoConnected } from "../config/db";
 import { demoReports, demoCampaigns } from "../config/demoData";
@@ -93,6 +93,10 @@ export async function createReport(req: Request, res: Response) {
     const userId = (req as any).userId;
 
     const aiEstimate = await estimateCost({ photoUrl: photoUrl || "", issueType: issueType || "pothole", description });
+    const aiPrescreen = await prescreenReport({ photoUrl: photoUrl || "", category: issueType || "General", description });
+    const aiFeatures = aiPrescreen.is_valid
+      ? [{ label: `Photo matches category "${issueType || "General"}"`, confidence: aiPrescreen.is_duplicate ? 0.55 : 0.9 }]
+      : [{ label: "Photo does not match selected category", confidence: 0.72 }];
 
     const report = {
       id: `iss_${Date.now()}`,
@@ -102,6 +106,8 @@ export async function createReport(req: Request, res: Response) {
       photoUrl,
       location: location || { city: "Mumbai", state: "Maharashtra", country: "India" },
       aiEstimate,
+      aiPrescreen,
+      aiFeatures,
       userEstimate: userEstimate ?? null,
       status: postType === "failed" ? "Rejected" : postType === "completed" ? "Done" : "Reported",
     };

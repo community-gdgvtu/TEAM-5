@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
-import { getOrgDisputesApi, resolveOrgDisputeApi } from "../../api/organizationApi";
+import { getOrgDisputesApi, resolveOrgDisputeApi, aiReviewDisputeApi, AiDisputeReview } from "../../api/organizationApi";
 import { Dispute } from "../../data/orgMock";
 import { Badge } from "../../components/common/Badge";
-import { Flag, CheckCircle2, RotateCcw, UserX, AlertTriangle } from "lucide-react";
+import { Flag, CheckCircle2, RotateCcw, UserX, AlertTriangle, Bot, Loader2 } from "lucide-react";
 
 const TYPE_ICON: Record<Dispute["type"], React.ElementType> = {
   "Bad work quality": AlertTriangle,
@@ -25,6 +25,7 @@ export const DisputeScreen: React.FC<NavScreenProps> = ({ back }) => {
   const { data } = useFetch<Dispute[]>(() => getOrgDisputesApi(), []);
   const [list, setList] = useState<Dispute[] | null>(null);
   const [filter, setFilter] = useState<"all" | "open" | "resolved">("all");
+  const [reviews, setReviews] = useState<Record<string, AiDisputeReview | "loading">>({});
 
   const disputes = list ?? data ?? [];
   const filtered = disputes.filter((d) => filter === "all" || d.status === filter);
@@ -34,6 +35,13 @@ export const DisputeScreen: React.FC<NavScreenProps> = ({ back }) => {
       (prev ?? data ?? []).map((d) => (d.id === id ? { ...d, status: "resolved" as const } : d))
     );
     resolveOrgDisputeApi(id).catch(console.error);
+  };
+
+  const aiReview = async (id: string) => {
+    if (reviews[id]) return;
+    setReviews((prev) => ({ ...prev, [id]: "loading" }));
+    const review = await aiReviewDisputeApi(id);
+    setReviews((prev) => ({ ...prev, [id]: review }));
   };
 
   return (
@@ -115,18 +123,73 @@ export const DisputeScreen: React.FC<NavScreenProps> = ({ back }) => {
 
                 <p className="text-sm text-slate-300 leading-relaxed">{d.summary}</p>
 
+                {reviews[d.id] && (
+                  <div
+                    className={`p-3 rounded-xl border flex items-start gap-2.5 ${
+                      reviews[d.id] === "loading"
+                        ? "bg-slate-900 border-slate-700"
+                        : (reviews[d.id] as AiDisputeReview).second_opinion === "pass"
+                          ? "bg-emerald-500/10 border-emerald-500/30"
+                          : (reviews[d.id] as AiDisputeReview).second_opinion === "fail"
+                            ? "bg-rose-500/10 border-rose-500/30"
+                            : "bg-amber-500/10 border-amber-500/30"
+                    }`}
+                  >
+                    {reviews[d.id] === "loading" ? (
+                      <>
+                        <Loader2 className="w-4 h-4 text-blue-400 shrink-0 animate-spin mt-0.5" />
+                        <div className="text-xs text-slate-300">
+                          <span className="font-semibold text-white">AI second opinion</span>
+                          <p className="text-slate-400 mt-0.5">Re-running before/after check with a stricter standard…</p>
+                        </div>
+                      </>
+                    ) : (
+                      (() => {
+                        const r = reviews[d.id] as AiDisputeReview;
+                        const tone =
+                          r.second_opinion === "pass"
+                            ? "text-emerald-300"
+                            : r.second_opinion === "fail"
+                              ? "text-rose-300"
+                              : "text-amber-300";
+                        return (
+                          <>
+                            <Bot className="w-4 h-4 text-blue-400 shrink-0 mt-0.5" />
+                            <div className="text-xs">
+                              <span className={`font-semibold ${tone}`}>
+                                AI second opinion: {r.second_opinion} · {Math.round(r.confidence * 100)}% confidence
+                              </span>
+                              <p className="text-slate-300 mt-1 leading-relaxed">{r.assessment}</p>
+                            </div>
+                          </>
+                        );
+                      })()
+                    )}
+                  </div>
+                )}
+
                 {d.status === "open" && (
-                  <div className="flex gap-2">
+                  <div className="space-y-2">
                     <motion.button
                       whileTap={{ scale: 0.98 }}
-                      onClick={() => resolve(d.id)}
-                      className="flex-1 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-xs font-bold hover:bg-emerald-500/20 transition-colors"
+                      onClick={() => aiReview(d.id)}
+                      disabled={reviews[d.id] === "loading"}
+                      className="w-full py-2.5 rounded-xl bg-blue-500/10 border border-blue-500/40 text-blue-300 text-xs font-bold hover:bg-blue-500/20 transition-colors flex items-center justify-center gap-2"
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 inline mr-1" /> Mark resolved
+                      <Bot className="w-3.5 h-3.5" /> Get AI second opinion
                     </motion.button>
-                    <button className="flex-1 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/40 text-rose-300 text-xs font-bold hover:bg-rose-500/20 transition-colors">
-                      Escalate to org lead
-                    </button>
+                    <div className="flex gap-2">
+                      <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => resolve(d.id)}
+                        className="flex-1 py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-xs font-bold hover:bg-emerald-500/20 transition-colors"
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 inline mr-1" /> Mark resolved
+                      </motion.button>
+                      <button className="flex-1 py-2.5 rounded-xl bg-rose-500/10 border border-rose-500/40 text-rose-300 text-xs font-bold hover:bg-rose-500/20 transition-colors">
+                        Escalate to org lead
+                      </button>
+                    </div>
                   </div>
                 )}
               </motion.div>
