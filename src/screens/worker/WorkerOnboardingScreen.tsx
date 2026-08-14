@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { NavScreenProps } from "../../navigation/types";
 import { useApp } from "../../context/AppContext";
+import { CivicImg } from "../../components/common/CivicImg";
 import {
   ShieldCheck,
   Upload,
@@ -84,7 +85,9 @@ export const WorkerOnboardingScreen: React.FC<NavScreenProps> = ({ go }) => {
                 }`}
               >
                 <div className="flex items-center gap-2.5">
-                  <span className="text-xl">{s.emoji}</span>
+                  <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
+                    <CivicImg emoji={s.emoji} alt={s.label} className="w-full h-full" />
+                  </div>
                   <div className="min-w-0">
                     <div className={`text-sm font-semibold ${selected ? "text-orange-300" : "text-slate-100"}`}>
                       {s.label}

@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
 import { getProfile, getOpenJobs, WorkerJob, C } from "../../api/workerApi";
+import { CivicImg } from "../../components/common/CivicImg";
 import { useApp } from "../../context/AppContext";
 import { useRouter } from "../../router";
 import { Badge } from "../../components/common/Badge";
@@ -131,7 +132,9 @@ export const WorkerProfileScreen: React.FC<NavScreenProps> = ({ go }) => {
                 b.unlocked ? "bg-slate-900 border-orange-500/30" : "bg-slate-900/50 border-slate-800 opacity-40"
               }`}
             >
-              <div className="text-2xl mb-1">{b.emoji}</div>
+              <div className="w-10 h-10 mx-auto mb-1 rounded-lg overflow-hidden">
+                <CivicImg emoji={b.emoji} alt={b.label} className="w-full h-full" />
+              </div>
               <div className={`text-[10px] font-semibold ${b.unlocked ? "text-slate-200" : "text-slate-500"}`}>{b.label}</div>
             </motion.div>
           ))}
@@ -153,8 +156,10 @@ export const WorkerProfileScreen: React.FC<NavScreenProps> = ({ go }) => {
               transition={{ delay: i * 0.06 }}
               className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden"
             >
-              <div className="p-3.5 flex items-center gap-3" style={{ background: p.gradient }}>
-                <span className="text-2xl">{p.emoji}</span>
+              <div className="p-3.5 flex items-center gap-3">
+                <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
+                  <CivicImg emoji={p.emoji} alt={p.title} className="w-full h-full" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-bold text-white leading-snug">{p.title}</h3>
                   <p className="text-[11px] text-white/80">{p.category} · {p.date} · {C(p.payout)}</p>

@@ -7,6 +7,7 @@ import { LocationPicker } from "../ui/location-picker";
 import AuroraBackground from "../ui/aurora-background";
 import CivicosMascot from "./CivicosMascot";
 import { sendWhatsAppOtp, verifyWhatsAppOtp, googleAuth } from "../../api/authApi";
+import { demoUserForRole, useRouter, AppRole } from "../../router";
 import {
   UserCheck,
   Building2,
@@ -48,6 +49,58 @@ const ROLE_ICONS: Record<string, React.ElementType> = {
   investor: TrendingUp,
 };
 
+/**
+ * One-click demo accounts — names/ids mirror `demoUserForRole` and the
+ * MongoDB seed (backend/src/config/seed.ts), so every role's feed, messages,
+ * profile and leaderboard resolve with real data.
+ */
+const DEMO_USERS: {
+  role: AppRole;
+  name: string;
+  tagline: string;
+  buttonClass: string;
+  iconBox: string;
+  iconColor: string;
+  arrowColor: string;
+}[] = [
+  {
+    role: "citizen",
+    name: "Ananya Sharma",
+    tagline: "Report an issue → feed → track → profile",
+    buttonClass: "bg-emerald-600/15 border-emerald-500/40 hover:bg-emerald-600/25",
+    iconBox: "bg-emerald-500/20 text-emerald-300",
+    iconColor: "text-emerald-400",
+    arrowColor: "text-emerald-400",
+  },
+  {
+    role: "investor",
+    name: "Nikhil Rao",
+    tagline: "Discover → portfolio → impact analytics",
+    buttonClass: "bg-purple-600/15 border-purple-500/40 hover:bg-purple-600/25",
+    iconBox: "bg-purple-500/20 text-purple-300",
+    iconColor: "text-purple-400",
+    arrowColor: "text-purple-400",
+  },
+  {
+    role: "worker",
+    name: "Rahul Deshmukh",
+    tagline: "Marketplace → bids → proof → wallet",
+    buttonClass: "bg-orange-600/15 border-orange-500/40 hover:bg-orange-600/25",
+    iconBox: "bg-orange-500/20 text-orange-300",
+    iconColor: "text-orange-400",
+    arrowColor: "text-orange-400",
+  },
+  {
+    role: "organization",
+    name: "Brihanmumbai Municipal Corp.",
+    tagline: "AI verify queue → push jobs → kanban → analytics",
+    buttonClass: "bg-blue-600/15 border-blue-500/40 hover:bg-blue-600/25",
+    iconBox: "bg-blue-500/20 text-blue-300",
+    iconColor: "text-blue-400",
+    arrowColor: "text-blue-400",
+  },
+];
+
 const GoogleIcon = () => (
   <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -73,6 +126,7 @@ const mapGoogleUserToRole = (email: string): { role: Role; reason: string } => {
 
 export const LoginSignupFlow: React.FC = () => {
   const { t, theme, toggleTheme, language, setLanguage, setCurrentUser } = useApp();
+  const { navigate } = useRouter();
 
   // Google Auth State
   const [isGoogleModalOpen, setIsGoogleModalOpen] = useState(false);
@@ -255,88 +309,11 @@ export const LoginSignupFlow: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // One-click demo login — creates a demo Citizen account and enters the
-  // citizen dashboard (feed → report → track → leaderboard).
-  const handleDemoCitizenLogin = () => {
-    const demoUser: UserProfile = {
-      id: "user_citizen_001",
-      name: "Ananya Sharma",
-      mobile: "9876500001",
-      countryCode: "+91",
-      email: "ananya.sharma@citizen.in",
-      age: 27,
-      location: { city: "Mumbai", state: "Maharashtra", country: "India" },
-      role: "citizen",
-      verifiedWhatsApp: true,
-      createdAt: new Date().toISOString(),
-      supplementaryData: {},
-    };
-    setCurrentUser(demoUser);
-  };
-
-  // One-click demo login — creates a demo Investor account and enters the investor dashboard.
-  const handleDemoInvestorLogin = () => {
-    const demoUser: UserProfile = {
-      id: "user_demo_investor_001",
-      name: "Global Impact Fund",
-      mobile: "9876500004",
-      countryCode: "+91",
-      email: "invest@esgfund.org",
-      age: 30,
-      location: { city: "Mumbai", state: "Maharashtra", country: "India" },
-      role: "investor",
-      verifiedWhatsApp: true,
-      createdAt: new Date().toISOString(),
-      supplementaryData: {
-        investorEntityName: "Global Impact Fund",
-        investorKycStatus: "Verified ESG Fund",
-      },
-    };
-    setCurrentUser(demoUser);
-  };
-
-  // One-click demo login — creates a demo Worker account and enters the Worker
-  // dashboard flow (lands on onboarding → marketplace → bidding → proof → wallet).
-  const handleDemoWorkerLogin = () => {
-    const demoUser: UserProfile = {
-      id: "user_demo_worker_001",
-      name: "Rahul Deshmukh",
-      mobile: "9876500003",
-      countryCode: "+91",
-      email: "rahul.works@contractor.in",
-      age: 31,
-      location: { city: "Bengaluru", state: "Karnataka", country: "India" },
-      role: "worker",
-      verifiedWhatsApp: true,
-      createdAt: new Date().toISOString(),
-      supplementaryData: {
-        workerSkillCategory: "",
-        workerLicenseId: "",
-      },
-    };
-    setCurrentUser(demoUser);
-  };
-
-  // One-click demo login — creates a demo Organization (Municipal Admin) account
-  // and enters the org dashboard flow (queue → AI verify → push to marketplace → jobs → analytics).
-  const handleDemoOrgLogin = () => {
-    const demoUser: UserProfile = {
-      id: "org_mumbai_001",
-      name: "Priya Sharma",
-      mobile: "9876500002",
-      countryCode: "+91",
-      email: "operations@municipal.gov",
-      age: 34,
-      location: { city: "Mumbai", state: "Maharashtra", country: "India" },
-      role: "organization",
-      verifiedWhatsApp: true,
-      createdAt: new Date().toISOString(),
-      supplementaryData: {
-        organizationRegId: "MC-MUM-2026-99",
-        organizationType: "Municipal Corporation",
-      },
-    };
-    setCurrentUser(demoUser);
+  // One-click demo login — signs in the canonical seeded demo account for a
+  // role (same ids as backend/src/config/seed.ts, so feed / messages / profile
+  // all resolve). Redirect to that role's dashboard is handled in App.tsx.
+  const handleDemoLogin = (role: AppRole) => {
+    setCurrentUser(demoUserForRole(role));
   };
 
   // Check if number exists on server before requesting OTP
@@ -512,8 +489,13 @@ export const LoginSignupFlow: React.FC = () => {
       <div className="w-full max-w-xl mx-auto z-10 flex flex-col items-center">
         {/* Header Bar with Language & Dark/Light Theme Toggle */}
         <div className="w-full flex items-center justify-between mb-6 px-2">
-          <div className="flex items-center space-x-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-purple-900/40">
+          <button
+            type="button"
+            onClick={() => navigate("/")}
+            aria-label="Back to home"
+            className="flex items-center space-x-2.5 group text-left"
+          >
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-white font-bold text-lg shadow-md shadow-purple-900/40 transition-transform group-hover:scale-105">
               CF
             </div>
             <div>
@@ -525,7 +507,7 @@ export const LoginSignupFlow: React.FC = () => {
               </h1>
               <p className="text-xs text-slate-300 hidden sm:block">{t("appSubtitle")}</p>
             </div>
-          </div>
+          </button>
 
           <div className="flex items-center space-x-2">
             {/* Language Selector */}
@@ -688,98 +670,41 @@ export const LoginSignupFlow: React.FC = () => {
                   </div>
                 </div>
 
-                {/* One-Click Demo Citizen Login */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={handleDemoCitizenLogin}
-                    className="w-full p-3.5 rounded-xl bg-emerald-600/15 border border-emerald-500/40 hover:bg-emerald-600/25 text-left transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2.5">
-                        <span className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-300 flex items-center justify-center shrink-0">
-                          <UserCheck className="w-4 h-4" />
-                        </span>
-                        <div>
-                          <div className="text-xs font-bold text-white">One-Click Demo Login — Citizen</div>
-                          <div className="text-[11px] text-slate-400">
-                            Report an issue → feed → track → leaderboard
+                {/* One-Click Demo Accounts — one per role */}
+                <div className="space-y-2.5">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500">
+                    Quick demo accounts
+                  </p>
+                  {DEMO_USERS.map((u) => {
+                    const IconComp = ROLE_ICONS[u.role];
+                    return (
+                      <button
+                        key={u.role}
+                        type="button"
+                        onClick={() => handleDemoLogin(u.role)}
+                        aria-label={`Sign in as demo ${u.role}: ${u.name}`}
+                        className={`w-full p-3.5 rounded-xl border text-left transition-all cursor-pointer group ${u.buttonClass}`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex items-center space-x-2.5 min-w-0">
+                            <span className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${u.iconBox}`}>
+                              <IconComp className="w-4 h-4" />
+                            </span>
+                            <div className="min-w-0">
+                              <div className="text-xs font-bold text-white truncate">{u.name}</div>
+                              <div className="text-[10px] uppercase tracking-wider" style={{ color: u.iconColor }}>
+                                {u.role}
+                              </div>
+                              <div className="text-[11px] text-slate-400 truncate">{u.tagline}</div>
+                            </div>
                           </div>
+                          <ArrowRight
+                            className={`w-4 h-4 shrink-0 group-hover:translate-x-0.5 transition-transform ${u.arrowColor}`}
+                          />
                         </div>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                    </div>
-                  </button>
-                </div>
-
-                {/* One-Click Demo Investor Login */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={handleDemoInvestorLogin}
-                    className="w-full p-3.5 rounded-xl bg-purple-600/15 border border-purple-500/40 hover:bg-purple-600/25 text-left transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2.5">
-                        <span className="w-8 h-8 rounded-lg bg-purple-500/20 text-purple-300 flex items-center justify-center shrink-0">
-                          <TrendingUp className="w-4 h-4" />
-                        </span>
-                        <div>
-                          <div className="text-xs font-bold text-white">One-Click Demo Login — Investor</div>
-                          <div className="text-[11px] text-slate-400">Creates a demo account · skips OTP · opens Investor dashboard</div>
-                        </div>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-purple-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                    </div>
-                  </button>
-                </div>
-
-                {/* One-Click Demo Worker Login */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={handleDemoWorkerLogin}
-                    className="w-full p-3.5 rounded-xl bg-orange-600/15 border border-orange-500/40 hover:bg-orange-600/25 text-left transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2.5">
-                        <span className="w-8 h-8 rounded-lg bg-orange-500/20 text-orange-300 flex items-center justify-center shrink-0">
-                          <HardHat className="w-4 h-4" />
-                        </span>
-                        <div>
-                          <div className="text-xs font-bold text-white">One-Click Demo Login — Worker</div>
-                          <div className="text-[11px] text-slate-400">
-                            Contractor demo · onboarding → marketplace → bids → proof → wallet
-                          </div>
-                        </div>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-orange-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                    </div>
-                  </button>
-                </div>
-
-                {/* One-Click Demo Organization Login */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={handleDemoOrgLogin}
-                    className="w-full p-3.5 rounded-xl bg-blue-600/15 border border-blue-500/40 hover:bg-blue-600/25 text-left transition-all cursor-pointer group"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2.5">
-                        <span className="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-300 flex items-center justify-center shrink-0">
-                          <Building2 className="w-4 h-4" />
-                        </span>
-                        <div>
-                          <div className="text-xs font-bold text-white">One-Click Demo Login — Organization</div>
-                          <div className="text-[11px] text-slate-400">
-                            Municipal admin · AI verify queue → push jobs → kanban → analytics
-                          </div>
-                        </div>
-                      </div>
-                      <ArrowRight className="w-4 h-4 text-blue-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
-                    </div>
-                  </button>
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Full Name */}

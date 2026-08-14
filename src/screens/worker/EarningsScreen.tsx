@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
 import { getWallet, C, Withdrawal, EarningsTx } from "../../api/workerApi";
+import { CivicImg } from "../../components/common/CivicImg";
 import { Badge } from "../../components/common/Badge";
 import { Wallet, TrendingUp, Lock, Plus, ArrowUpRight, ArrowDownLeft, Landmark } from "lucide-react";
 
@@ -182,7 +183,9 @@ export const EarningsScreen: React.FC<NavScreenProps> = ({ go }) => {
                   transition={{ delay: i * 0.04 }}
                   className="flex items-center gap-3 p-3 bg-slate-900 border border-slate-800 rounded-xl"
                 >
-                  <span className="w-9 h-9 rounded-lg bg-slate-800 flex items-center justify-center text-lg">{tx.emoji}</span>
+                  <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
+                    <CivicImg emoji={tx.emoji} alt="" className="w-full h-full" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-semibold text-white truncate">{tx.jobTitle}</div>
                     <div className="text-[11px] text-slate-400">{tx.note} · {tx.date}</div>

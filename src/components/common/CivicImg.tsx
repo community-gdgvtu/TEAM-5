@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getImageUrl } from "../../data/civicImages";
+import { getImageUrl, getAvatarUrl, getCitizenAvatarUrl } from "../../data/civicImages";
 
 export interface CivicImgProps {
   emoji?: string;
@@ -40,6 +40,7 @@ export const CivicImg: React.FC<CivicImgProps> = ({
   return <img src={finalSrc} alt={alt} className={finalClass} loading="lazy" onError={() => setFailed(true)} />;
 };
 
+/** Real photo avatar using Unsplash portrait pool. */
 export const CivicAvatar: React.FC<{
   name?: string;
   seed?: string;
@@ -47,20 +48,56 @@ export const CivicAvatar: React.FC<{
   className?: string;
   alt?: string;
 }> = ({ name, seed, size = 48, className = "", alt }) => {
-  const src = name
-    ? `https://picsum.photos/seed/avatar-${encodeURIComponent(name)}/${size}/${size}.jpg`
-    : seed
-      ? `https://picsum.photos/seed/avatar-${encodeURIComponent(seed)}/${size}/${size}.jpg`
-      : undefined;
-  return <img src={src} alt={alt ?? name ?? "avatar"} className={`rounded-full object-cover ${className}`} loading="lazy" />;
+  const [failed, setFailed] = useState(false);
+  const src = failed
+    ? `https://picsum.photos/seed/avatar-${encodeURIComponent(name ?? seed ?? "user")}/${size}/${size}.jpg`
+    : name
+      ? getAvatarUrl(name, size)
+      : seed
+        ? getCitizenAvatarUrl(seed, size)
+        : undefined;
+  return (
+    <img
+      src={src}
+      alt={alt ?? name ?? "avatar"}
+      className={`rounded-full object-cover ${className}`}
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
 };
 
+/** Citizen avatar using real portrait photos. */
 export const CitizenAvatar: React.FC<{
   seed: string;
   size?: number;
   className?: string;
   alt?: string;
 }> = ({ seed, size = 48, className = "", alt }) => {
-  const src = `https://picsum.photos/seed/citizen-${encodeURIComponent(seed)}/${size}/${size}.jpg`;
-  return <img src={src} alt={alt ?? "citizen"} className={`rounded-full object-cover ${className}`} loading="lazy" />;
+  const [failed, setFailed] = useState(false);
+  const src = failed
+    ? `https://picsum.photos/seed/citizen-${encodeURIComponent(seed)}/${size}/${size}.jpg`
+    : getCitizenAvatarUrl(seed, size);
+  return (
+    <img
+      src={src}
+      alt={alt ?? "citizen"}
+      className={`rounded-full object-cover ${className}`}
+      loading="lazy"
+      onError={() => setFailed(true)}
+    />
+  );
+};
+
+/** Before/After image pair for completed work. */
+export const BeforeAfterImg: React.FC<{
+  type: "before" | "after";
+  category?: string;
+  className?: string;
+  alt?: string;
+}> = ({ type, category = "road", className = "", alt }) => {
+  const emojiKey = `before_${category}`;
+  const afterKey = `after_${category}`;
+  const key = type === "before" ? emojiKey : afterKey;
+  return <CivicImg emoji={key} alt={alt} className={className} />;
 };

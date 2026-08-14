@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
 import { getMyBidsMock, MyBid, C } from "../../api/workerApi";
+import { CivicImg } from "../../components/common/CivicImg";
 import { Badge } from "../../components/common/Badge";
 import { Clock, Hourglass, CheckCircle2, XCircle, ChevronRight } from "lucide-react";
 
@@ -42,12 +43,9 @@ export const BidStatusScreen: React.FC<NavScreenProps> = ({ go, params }) => {
               }`}
             >
               <div className="flex items-center gap-3 p-4">
-                <span
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-xl shrink-0"
-                  style={{ background: bid.gradient }}
-                >
-                  {bid.emoji}
-                </span>
+                <div className="w-10 h-10 rounded-xl overflow-hidden shrink-0">
+                  <CivicImg emoji={bid.emoji} alt={bid.jobTitle} className="w-full h-full" />
+                </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="text-sm font-semibold text-white leading-snug">{bid.jobTitle}</h3>
                   <p className="text-[11px] text-slate-400 mt-0.5">{bid.org}</p>

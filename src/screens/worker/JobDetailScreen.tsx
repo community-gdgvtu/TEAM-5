@@ -5,6 +5,7 @@ import { useFetch } from "../../hooks/useFetch";
 import { getJob, WorkerJob, C } from "../../api/workerApi";
 import { ProgressBar } from "../../components/common/ProgressBar";
 import { Badge } from "../../components/common/Badge";
+import { CivicImg } from "../../components/common/CivicImg";
 import {
   MapPin,
   CalendarDays,
@@ -39,7 +40,9 @@ export const JobDetailScreen: React.FC<NavScreenProps> = ({ go, params }) => {
         className="h-32 rounded-2xl p-5 flex flex-col justify-between relative overflow-hidden"
         style={{ background: job.gradient }}
       >
-        <div className="absolute -right-6 -top-6 text-7xl opacity-20 select-none">{job.emoji}</div>
+        <div className="absolute -right-6 -top-6 w-28 h-28 opacity-20 select-none">
+          <CivicImg emoji={job.emoji} alt="" className="w-full h-full" />
+        </div>
         <div>
           <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider bg-white/15 text-white px-2 py-0.5 rounded-full backdrop-blur">
             {job.urgency} priority
@@ -51,8 +54,8 @@ export const JobDetailScreen: React.FC<NavScreenProps> = ({ go, params }) => {
 
       {/* Org + meta */}
       <div className="flex items-center gap-2.5">
-        <div className="w-9 h-9 rounded-xl flex items-center justify-center text-lg" style={{ background: job.gradient }}>
-          {job.emoji}
+        <div className="w-9 h-9 rounded-xl overflow-hidden">
+          <CivicImg emoji={job.emoji} alt={job.title} className="w-full h-full" />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1">

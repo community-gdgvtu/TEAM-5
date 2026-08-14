@@ -5,7 +5,9 @@ import { useFetch } from "../../hooks/useFetch";
 import { getOrgTeamApi, addOrgTeamMemberApi, updateOrgTeamMemberApi } from "../../api/organizationApi";
 import { OrgTeamMember } from "../../data/orgMock";
 import { Badge } from "../../components/common/Badge";
-import { UserPlus, Shield, ShieldCheck, ShieldAlert, User, X } from "lucide-react";
+import { useApp } from "../../context/AppContext";
+import { useRouter } from "../../router";
+import { UserPlus, Shield, ShieldCheck, ShieldAlert, User, X, LogOut } from "lucide-react";
 
 const LEVELS: OrgTeamMember["level"][] = ["Admin", "Verifier", "Field Officer", "Viewer"];
 
@@ -32,6 +34,8 @@ const LEVEL_DESC: Record<OrgTeamMember["level"], string> = {
 
 /** Screen 9 — Team & Access Management: add staff, set permission levels. */
 export const TeamSettingsScreen: React.FC<NavScreenProps> = ({ go }) => {
+  const { logout } = useApp();
+  const { navigate } = useRouter();
   const { data } = useFetch<OrgTeamMember[]>(() => getOrgTeamApi(), []);
   const [team, setTeam] = useState<OrgTeamMember[] | null>(null);
   const [adding, setAdding] = useState(false);
@@ -207,6 +211,16 @@ export const TeamSettingsScreen: React.FC<NavScreenProps> = ({ go }) => {
         className="w-full py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-300 text-sm font-bold hover:border-blue-500/40 transition-colors"
       >
         Open org settings →
+      </button>
+
+      <button
+        onClick={() => {
+          logout();
+          navigate("/login");
+        }}
+        className="w-full py-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm font-bold flex items-center justify-center gap-2 hover:bg-rose-500/20 transition-colors"
+      >
+        <LogOut className="w-4 h-4" /> Log out
       </button>
     </div>
   );

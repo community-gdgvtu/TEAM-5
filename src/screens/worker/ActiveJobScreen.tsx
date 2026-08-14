@@ -4,6 +4,7 @@ import { NavScreenProps } from "../../navigation/types";
 import { useFetch } from "../../hooks/useFetch";
 import { getActiveJobs, ActiveJob, C } from "../../api/workerApi";
 import { Badge } from "../../components/common/Badge";
+import { CivicImg } from "../../components/common/CivicImg";
 import {
   MapPin,
   Navigation,
@@ -50,7 +51,9 @@ export const ActiveJobScreen: React.FC<NavScreenProps> = ({ go, params }) => {
             className="h-24 rounded-2xl p-4 flex items-center justify-between relative overflow-hidden"
             style={{ background: job.gradient }}
           >
-            <div className="absolute -right-4 -bottom-6 text-6xl opacity-20 select-none">{job.emoji}</div>
+            <div className="absolute -right-4 -bottom-6 w-24 h-24 opacity-20 select-none">
+              <CivicImg emoji={job.emoji} alt="" className="w-full h-full" />
+            </div>
             <div>
               <div className="text-[10px] font-bold uppercase tracking-wider text-white/80">Escrow value</div>
               <div className="text-2xl font-extrabold text-white drop-shadow">{C(job.payout)}</div>

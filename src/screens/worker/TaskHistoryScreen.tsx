@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { NavScreenProps } from "../../navigation/types";
 import { useApp } from "../../context/AppContext";
 import { getTaskHistory, TaskHistoryData, C, WorkerJob } from "../../api/workerApi";
+import { CivicImg, CivicAvatar } from "../../components/common/CivicImg";
 import {
   User,
   Star,
@@ -108,8 +109,8 @@ export const TaskHistoryScreen: React.FC<NavScreenProps> = ({ go, params }) => {
         <div className="h-16 bg-gradient-to-r from-orange-600 via-purple-600 to-indigo-600" />
         <div className="px-4 pb-4 -mt-8">
           <div className="flex items-end gap-3">
-            <div className="w-16 h-16 rounded-full bg-slate-950 border-4 border-slate-900 flex items-center justify-center text-2xl shrink-0">
-              🧑‍🔧
+            <div className="w-16 h-16 rounded-full bg-slate-950 border-4 border-slate-900 shrink-0 overflow-hidden">
+              <CivicAvatar name={data.user.name} size={64} />
             </div>
             <div className="min-w-0 pt-8">
               <div className="flex items-center gap-1.5">
@@ -245,11 +246,8 @@ export const TaskHistoryScreen: React.FC<NavScreenProps> = ({ go, params }) => {
                 onClick={() => go("detail", { id: job.id })}
                 className="flex bg-slate-900 border border-slate-800 rounded-xl overflow-hidden hover:border-slate-600/80 cursor-pointer transition-colors"
               >
-                <div
-                  className="w-12 shrink-0 flex items-center justify-center text-2xl"
-                  style={{ background: job.gradient }}
-                >
-                  {job.emoji}
+                <div className="w-12 shrink-0 overflow-hidden">
+                  <CivicImg emoji={job.emoji} alt={job.title} className="w-full h-full" />
                 </div>
                 <div className="flex-1 min-w-0 px-3 py-2.5">
                   <h3 className="text-sm font-semibold text-white leading-snug line-clamp-1">{job.title}</h3>
@@ -299,12 +297,9 @@ export const TaskHistoryScreen: React.FC<NavScreenProps> = ({ go, params }) => {
                 className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden"
               >
                 <div className="flex items-center gap-3 p-3">
-                  <span
-                    className="w-9 h-9 rounded-lg flex items-center justify-center text-lg shrink-0"
-                    style={{ background: bid.gradient }}
-                  >
-                    {bid.emoji}
-                  </span>
+                  <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0">
+                    <CivicImg emoji={bid.emoji} alt={bid.jobTitle} className="w-full h-full" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-sm font-semibold text-white leading-snug line-clamp-1">{bid.jobTitle}</h3>
                     <p className="text-[11px] text-slate-400">{bid.org}</p>
@@ -354,7 +349,7 @@ export const TaskHistoryScreen: React.FC<NavScreenProps> = ({ go, params }) => {
                 className="bg-slate-900 border border-slate-800 rounded-xl p-3"
               >
                 <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-lg">{review.avatar}</span>
+                  <CivicAvatar name={review.author} size={32} />
                   <div>
                     <span className="text-xs font-semibold text-white">{review.author}</span>
                     <span className="text-[10px] text-slate-500 ml-1.5">{review.role}</span>

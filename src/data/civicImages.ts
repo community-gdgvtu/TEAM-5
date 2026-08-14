@@ -44,37 +44,105 @@ export const STAGE_EMOJI: Record<string, string> = {
 
 /** Local civic images from the verified imagesuiused folder, keyed by emoji. */
 export const LOCAL_IMAGE_MAP: Record<string, string> = {
+  // --- Road / Pothole ---
   "🕳️": "poatholes.webp",
   "🛣️": "poatholeonroad.jpg",
+  "🛤️": "artist-protesting-better-roads-baadal-nanjundaswamy-india-5d6e16ac180c0__700.webp",
+
+  // --- Streetlight / Electrical ---
   "💡": "broken-street-lamp.webp",
-  "🌃": "1920_20221003-covestroindia-c4c-image1.jpg",
+  "🚦": "broken-traffic-lights-bunch-wires-around-street-broken-traffic-lights-bunch-wires-around-159353097.webp",
+
+  // --- Water / Drainage ---
   "💧": "good water.webp",
-  "🚻": "people-dumping-loads-of-trash-in-a-city-street-lot-in-varanasi-india.webp",
+  "🌧️": "dirty-river-flows-residential-area-trash-litters-banks-murky-water-environmental-pollution-affects-natural-habitat-426277161.webp",
+
+  // --- Park / Green / Horticulture ---
   "🌳": "cleaningthegarden.jpg",
+  "🌱": "uploadnutochis-kopie-medium.webp",
+
+  // --- Sanitation / Cleaning ---
+  "🚻": "people-dumping-loads-of-trash-in-a-city-street-lot-in-varanasi-india.webp",
+  "🧹": "beawar-rajasthan-india-a-rag-picker-collects-reusable-waste-from-a-heap-of-garbage-at.webp",
+
+  // --- Bridge / River / Waterfront ---
   "🌉": "Mithi-River-Community-Cleanup-Model-Sustainability-CSR-ESG-NGO-Earth5R-Mumbai-1024x576.webp",
-  "♿": "broken-concrete-road-curb-and-traffic-cones.webp",
   "🏞️": "the-highly-polluted-bishnumati-river-running-through-kathmandu-in-nepal.webp",
-  "🏦": "large_KZosruZfdtwHCaYeVNeMOmwWM9e4OoLkDyCFFarh1io.webp",
-  "🌱": "water-flowing-from-concrete-pipes-into-forest-stream.webp",
-  "🤖": "scientist-examining-toxic-water-samples.webp",
-  "⏰": "old-fashioned-street-lights-vintage-lamps-close-up-against-blue-sky-broken-glass-sunny-day-256018872.webp",
+
+  // --- Accessibility ---
+  "♿": "broken-concrete-road-curb-and-traffic-cones.webp",
+
+  // --- Construction / Workers ---
+  "🧱": "plasting-clearing-workers.webp",
+  "🔨": "plasting-clearing-workers.webp",
+
+  // --- Stages / Status ---
+  "📣": "artist-protesting-better-roads-baadal-nanjundaswamy-india-5d6e17789753f__700.webp",
+  "🤝": "march-haryana-indian-people-helping-needy-ones-feeding-them-food-lockdown-india-due-to-corona-virus-179697094.webp",
+  "📸": "5d6e4f8995fdc-png__700.webp",
+  "✅": "a1-road-fixed-after.webp",
+
+  // --- Organization / Government ---
+  "🏛️": "1920_20221003-covestroindia-c4c-image1.jpg",
+  "🏢": "Earth5R-CSR-ESG-Awareness-Program-Earth5R-Mumbai-1024x576.webp",
+
+  // --- Badge / Award ---
   "🏆": "indian-community-in-juba-leads-clean-up-drive-near-hindu-temple-1024x576.webp",
   "💯": "Cleaning-Indias-Rivers-through-Behaviour-Change-Technology-and-Impact-Partnerships-ESG-CSR-EARTH5R-MUMBAI-2.webp",
-  "⚡": "scientist-examining-toxic-water-samples.webp",
-  "🧱": "f8cafb_d0d28f62d02c424d9f577e84d5314fc0~mv2.webp",
-  "🔨": "plasting-clearing-workers.webp",
-  "📣": "artist-protesting-better-roads-baadal-nanjundaswamy-india-5d6e17789753f__700.webp",
-  "🤝": "indian-community-in-juba-leads-clean-up-drive-near-hindu-temple-1024x576.webp",
-  "📸": "5d6e4f8995fdc-png__700.webp",
-  "🏛️": "1920_20221003-covestroindia-c4c-image1.jpg",
+  "🤖": "scientist-examining-toxic-water-samples.webp",
+  "⏰": "old-fashioned-street-lights-vintage-lamps-close-up-against-blue-sky-broken-glass-sunny-day-256018872.webp",
+  "⚡": "indian-community-in-juba-leads-clean-up-drive-near-hindu-temple-1024x576.webp",
+
+  // --- Wallet / Finance ---
+  "🏦": "large_KZosruZfdtwHCaYeVNeMOmwWM9e4OoLkDyCFFarh1io.webp",
+
+  // --- National ---
   "🇮🇳": "indian-community-in-juba-leads-clean-up-drive-near-hindu-temple-1024x576.webp",
-  "🚦": "broken-traffic-lights-bunch-wires-around-street-broken-traffic-lights-bunch-wires-around-159353097.webp",
+
+  // --- Misc / Filters ---
   "🗂️": "people-dumping-loads-of-trash-in-a-city-street-lot-in-varanasi-india.webp",
   "🛠️": "plasting-clearing-workers.webp",
-  "🌧️": "dirty-river-flows-residential-area-trash-litters-banks-murky-water-environmental-pollution-affects-natural-habitat-426277161.webp",
   "⚠️": "hathras-india-the-family-members-of-the-people-who-died-in-the-stampede-during-the-satsang-in.webp",
-  "🧹": "people-dumping-loads-of-trash-in-a-city-street-lot-in-varanasi-india.webp",
+  "📢": "Copy-of-220322-AS-WorldWaterDay-RiverCleanup-79-1600.webp",
+
+  // --- Rescue / Disaster ---
+  "🚨": "in-this-photograph-taken-on-august-8-indian-army-personnel-rescue-people-stranded-in-flood.webp",
+
+  // --- Animal ---
+  "🐾": "animal-rescue-and-care-kolkata.webp",
+
+  // --- Environment ---
+  "🌊": "ocean-polluted-by-garbage.webp",
+  "🌍": "IMG_2030-responsive.webp",
+
+  // --- Before/After (completed work) ---
+  "before_road": "sortedimages/a1-roadfixed-before.webp",
+  "after_road": "sortedimages/a1-road-fix-after.webp",
+  "before_river": "sortedimages/a5-river-before.webp",
+  "after_river": "sortedimages/a5-river-after.webp",
 };
+
+/** Avatars — real people photos for user profile images. */
+export const AVATAR_IMAGE_POOL: string[] = [
+  "1507003211169-0a1dd7228f2d",
+  "1494790108377-be9c29b29330",
+  "1500648767791-00dcc994a43e",
+  "1544005313-94ddf0286df2",
+  "1534528741775-53994a69daeb",
+  "1519085360753-af0119f7cbe7",
+  "1506794778202-cad84cf45f1d",
+  "1438761681033-6461ffad8d80",
+  "1472099645785-5658abf4ff4e",
+  "1517841905240-472988babdf9",
+  "1527980965255-d3b416303d12",
+  "1560250097-0b93528c311a",
+  "1573496359142-b8d87734a5a2",
+  "1580489944761-15a19d654956",
+  "1599566150163-29194dcabd9c",
+  "1607746882042-944635dfe10e",
+  "1633332755192-727a05c4013d",
+  "1583195764036-6dc248ac07d9",
+];
 
 export const STAGE_IMAGE_SEEDS: Record<string, string> = {
   Open: "📣",
@@ -99,16 +167,14 @@ export function getImageUrl(
 }
 
 export function getAvatarUrl(name: string, size = 64): string {
-  const portrait = PORTRAITS[hashKey(name) % PORTRAITS.length];
+  const portrait = AVATAR_IMAGE_POOL[hashKey(name) % AVATAR_IMAGE_POOL.length];
   return unsplash(portrait, size, size);
 }
 
 export function getCitizenAvatarUrl(seed: string, size = 48): string {
-  const portrait = PORTRAITS[hashKey(seed) % PORTRAITS.length];
+  const portrait = AVATAR_IMAGE_POOL[hashKey(seed) % AVATAR_IMAGE_POOL.length];
   return unsplash(portrait, size, size);
 }
-
-const PATH_BASE = "/imagesuiused";
 
 /** Verified Unsplash photo ids keyed by the seed strings above. */
 const PHOTOS: Record<string, string> = {
@@ -137,16 +203,6 @@ const PHOTOS: Record<string, string> = {
   "municipal-corporation-building-india": "1444723121867-7a241cacace9",
   "india-flag-tricolor": "1477959858617-67f85cf4f1df",
 };
-
-/** Verified Unsplash portrait pool for avatars (real faces, no emoji). */
-const PORTRAITS = [
-  "1507003211169-0a1dd7228f2d",
-  "1494790108377-be9c29b29330",
-  "1500648767791-00dcc994a43e",
-  "1544005313-94ddf0286df2",
-  "1534528741775-53994a69daeb",
-  "1519085360753-af0119f7cbe7",
-];
 
 function hashKey(s: string): number {
   let x = 0;

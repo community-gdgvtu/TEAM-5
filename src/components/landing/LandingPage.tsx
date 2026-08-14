@@ -109,7 +109,7 @@ const JUST_FIXED = [
 const CITIES = ["Mumbai", "Bengaluru", "Pune", "Kolkata", "Hyderabad", "Chennai", "Indore"];
 
 const PROBLEM_STATS = [
-  { value: "14.6 yrs", label: "average wait for a municipal fix in Indian cities" },
+  { value: "5 months", label: "average wait for a municipal fix in Indian cities" },
   { value: "₹8,400", label: "typical single repair cost that sits unfunded" },
   { value: "87%", label: "of repair apps show zero proof of completion" },
 ];
@@ -158,6 +158,8 @@ const REWARD_BOARD = [
   { name: "Rahul Deshmukh", role: "Worker", pts: 1105, emoji: "🥈" },
   { name: "Nikhil Rao", role: "Funder", pts: 940, emoji: "🥉" },
 ];
+
+const REWARD_COLORS = ["#00D9A3", "#F4C77B", "#FF6A3D"];
 
 const ROLES = [
   {
@@ -260,33 +262,35 @@ const PHOTO_WALL = [
    Before / After drag slider — real photos, auto-cycling scenarios
    ===================================================================== */
 
+const SORTED_IMAGES = "/imagesuiused/sortedimages";
+
 const SCENARIOS = [
   {
-    key: "pothole",
-    beforeEmoji: "🕳️",
-    afterEmoji: "🛣️",
-    label: "Pothole",
-    place: "Sector 22, Gurugram",
-    status: "Fixed · AI match 94%",
-    detail: "Patched in 6 days · ₹42,500 released",
+    key: "road",
+    before: `${SORTED_IMAGES}/a2-roadfixed-before.webp`,
+    after: `${SORTED_IMAGES}/a2-roadfixed-after.webp`,
+    label: "Road repair",
+    place: "Potholed stretch re-laid",
+    status: "Fixed · AI match 93%",
+    detail: "Re-laid in 7 days · ₹48,000 released",
   },
   {
-    key: "streetlight",
-    beforeEmoji: "💡",
-    afterEmoji: "🌃",
-    label: "Streetlight",
-    place: "G-14, Mumbai",
-    status: "Fixed · AI match 91%",
-    detail: "Relit in 2 days · ₹8,200 funded",
+    key: "river-cleanup-1",
+    before: `${SORTED_IMAGES}/a7-river-before.webp`,
+    after: `${SORTED_IMAGES}/a7-river-after.webp`,
+    label: "River cleanup",
+    place: "Polluted riverbank cleared",
+    status: "Fixed · AI match 95%",
+    detail: "Cleared in 12 days · ₹36,500 funded",
   },
   {
-    key: "drain",
-    beforeEmoji: "💧",
-    afterEmoji: "🏞️",
-    label: "Choked drain",
-    place: "Sinhagad Rd, Pune",
-    status: "Fixed · AI match 96%",
-    detail: "De-clogged in 4 days · ₹12,000 funded",
+    key: "river-cleanup-2",
+    before: `${SORTED_IMAGES}/a5-river-before.webp`,
+    after: `${SORTED_IMAGES}/a5-river-after.webp`,
+    label: "River cleanup",
+    place: "Garbage hotspot removed",
+    status: "Fixed · AI match 97%",
+    detail: "Restored in 9 days · ₹28,000 funded",
   },
 ];
 
@@ -327,7 +331,7 @@ const BeforeAfterSlider: React.FC = () => {
     <div className="relative w-full">
       <div
         ref={ref}
-        className="relative aspect-[5/3] w-full select-none touch-none overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-black/60 cursor-ew-resize"
+        className="relative aspect-[16/10] w-full select-none touch-none overflow-hidden rounded-3xl border border-white/10 shadow-2xl shadow-black/60 cursor-ew-resize"
         onPointerDown={(e) => {
           dragging.current = true;
           e.currentTarget.setPointerCapture(e.pointerId);
@@ -348,7 +352,7 @@ const BeforeAfterSlider: React.FC = () => {
         {/* AFTER (bottom layer, right side) */}
         <div className="absolute inset-0">
           <CivicImg
-            emoji={sc.afterEmoji}
+            src={sc.after}
             width={960}
             height={576}
             className="h-full w-full object-cover"
@@ -361,7 +365,7 @@ const BeforeAfterSlider: React.FC = () => {
         {/* BEFORE (top layer, clipped to the left of the handle) */}
         <div className="absolute inset-0" style={{ clipPath: `inset(0 ${100 - pos}% 0 0)` }}>
           <CivicImg
-            emoji={sc.beforeEmoji}
+            src={sc.before}
             width={960}
             height={576}
             className="h-full w-full object-cover grayscale-[35%]"
@@ -429,6 +433,125 @@ const BeforeAfterSlider: React.FC = () => {
 };
 
 /* =====================================================================
+   City leaderboard — AI-globe donut with hover-driven slices
+   ===================================================================== */
+
+const GlobeLeaderboard: React.FC = () => {
+  const [active, setActive] = useState<number | null>(null);
+  const total = REWARD_BOARD.reduce((s, r) => s + r.pts, 0);
+  const R = 54;
+  const C = 2 * Math.PI * R;
+  let acc = 0;
+  const segs = REWARD_BOARD.map((r, i) => {
+    const frac = r.pts / total;
+    const dash = frac * C - 4;
+    const off = -acc;
+    acc += r.pts;
+    return { ...r, i, dash, off };
+  });
+
+  const current = active === null ? null : REWARD_BOARD[active];
+
+  return (
+    <div className="w-full max-w-xs shrink-0 rounded-2xl border border-white/10 bg-[#0E1319]/80 p-4 shadow-lg shadow-black/30">
+      <p className="mb-2 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
+        <span>City leaderboard</span>
+        <span className="flex items-center gap-1.5 text-verified">
+          <span className="h-1.5 w-1.5 rounded-full bg-verified" style={{ animation: "pulse-glow 1.6s ease-in-out infinite" }} />
+          live
+        </span>
+      </p>
+
+      {/* AI globe donut */}
+      <div className="relative mx-auto flex h-40 w-40 items-center justify-center">
+        {/* rotating meridians */}
+        <div
+          className="absolute -inset-2 rounded-full border border-dashed border-white/10"
+          style={{ animation: "spin-slow 24s linear infinite" }}
+        />
+        <div
+          className="absolute -inset-2 rounded-full"
+          style={{
+            background:
+              "radial-gradient(60% 60% at 32% 28%, rgba(255,255,255,0.22), transparent 50%), radial-gradient(80% 80% at 70% 80%, rgba(0,217,163,0.10), transparent 60%)",
+          }}
+        />
+
+        <svg viewBox="0 0 140 140" className="relative h-full w-full -rotate-90">
+          <circle cx="70" cy="70" r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="18" />
+          {segs.map((s) => (
+            <circle
+              key={s.name}
+              cx="70"
+              cy="70"
+              r={R}
+              fill="none"
+              stroke={REWARD_COLORS[s.i]}
+              strokeWidth={active === s.i ? 28 : 16}
+              strokeDasharray={`${s.dash} ${C - s.dash}`}
+              strokeDashoffset={s.off}
+              strokeLinecap="round"
+              opacity={active === null ? 1 : active === s.i ? 1 : 0.3}
+              className="cursor-pointer transition-all duration-300"
+              style={{
+                filter: active === s.i ? `drop-shadow(0 0 10px ${REWARD_COLORS[s.i]}80)` : undefined,
+              }}
+              onMouseEnter={() => setActive(s.i)}
+              onMouseLeave={() => setActive(null)}
+            />
+          ))}
+        </svg>
+
+        {/* centre readout */}
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+          {current ? (
+            <>
+              <span className="text-base leading-none">{current.emoji}</span>
+              <span className="mt-1 max-w-[5.5rem] truncate text-[11px] font-bold leading-tight text-white">
+                {current.name.split(" ")[0]}
+              </span>
+              <span className="font-mono text-[10px] font-bold" style={{ color: REWARD_COLORS[active!] }}>
+                {current.pts.toLocaleString("en-IN")} pts
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="font-mono text-xl font-bold text-white">{total.toLocaleString("en-IN")}</span>
+              <span className="text-[9px] uppercase tracking-widest text-slate-500">points earned</span>
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* legend rows */}
+      <div className="mt-3 space-y-1.5">
+        {REWARD_BOARD.map((r, i) => (
+          <button
+            key={r.name}
+            className="flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left transition-all duration-300"
+            style={{
+              background: active === i ? `${REWARD_COLORS[i]}16` : "transparent",
+              transform: active === i ? "translateX(2px)" : undefined,
+            }}
+            onMouseEnter={() => setActive(i)}
+            onMouseLeave={() => setActive(null)}
+          >
+            <span className="w-6 text-center text-sm">{r.emoji}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-xs font-semibold text-white">{r.name}</span>
+              <span className="block text-[10px]" style={{ color: REWARD_COLORS[i] }}>
+                {r.role}
+              </span>
+            </span>
+            <span className="font-mono text-[10px] font-bold text-slate-400">{r.pts.toLocaleString("en-IN")}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+/* =====================================================================
    Landing page
    ===================================================================== */
 
@@ -437,7 +560,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
   const [menuOpen, setMenuOpen] = useState(false);
 
   const goReport = () => navigate("/login?next=/citizen/dashboard");
-  const goWorker = () => navigate("/worker/marketplace");
+  const goWorker = () => navigate("/login?next=/worker/marketplace");
 
   const navLinks = [
     { href: "#how-it-works", label: "How it works" },
@@ -450,7 +573,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
     <div className="min-h-screen overflow-x-hidden bg-[#0E1319] font-sans text-[#F3F0E9]">
       {/* ================= Nav ================= */}
       <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0E1319]/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-8">
+        <div className="mx-auto flex h-16 max-w-6xl xl:max-w-7xl items-center justify-between px-5 sm:px-8">
           <a href="#" className="flex items-center gap-2.5">
             <img
               src="/civic-fix.png"
@@ -549,9 +672,9 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           }}
         />
 
-        <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 pt-14 pb-16 sm:px-8 lg:grid-cols-2 lg:gap-10 lg:pt-20 lg:pb-24">
+        <div className="relative mx-auto grid max-w-6xl xl:max-w-7xl items-center gap-14 px-5 pt-14 pb-16 sm:px-8 xl:max-w-7xl xl:grid-cols-2 xl:gap-10 xl:pt-20 xl:pb-24">
           {/* Left: tagline + CTAs */}
-          <div className="text-center lg:text-left">
+          <div className="text-center xl:text-left">
             <Reveal>
               <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.06] px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-verified shadow-lg shadow-black/20 backdrop-blur-xl">
                 <span className="h-1.5 w-1.5 rounded-full bg-verified" style={{ animation: "pulse-glow 2.4s ease-in-out infinite" }} />
@@ -560,7 +683,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
             </Reveal>
 
             <Reveal delay={80}>
-              <h1 className="font-display mx-auto mt-7 max-w-4xl text-[2.1rem] font-bold leading-[1.12] tracking-tight sm:text-5xl lg:mx-0 lg:text-[3.2rem]">
+              <h1 className="font-display mx-auto mt-7 max-w-4xl text-[2.1rem] font-bold leading-[1.12] tracking-tight sm:text-5xl xl:mx-0 xl:text-[3.2rem]">
                 Your street's deteriorating infrastructure isn't the government's problem — it's your{" "}
                 <span className="bg-gradient-to-r from-[#00D9A3] via-[#F4C77B] to-[#FF6A3D] bg-clip-text text-transparent">
                   neighbourhood's project.
@@ -572,7 +695,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
             </Reveal>
 
             <Reveal delay={200}>
-              <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row lg:justify-start">
+              <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row xl:justify-start">
                 <button
                   onClick={goReport}
                   className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#FF6A3D] px-7 py-3.5 text-sm font-bold text-white shadow-xl shadow-orange-950/50 transition-transform hover:scale-[1.04]"
@@ -592,7 +715,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           </div>
 
           {/* Right: before/after mockup */}
-          <Reveal delay={280} className="relative mx-auto mt-2 w-full max-w-4xl lg:mt-0">
+          <Reveal delay={280} className="relative mx-auto mt-2 w-full max-w-4xl xl:mt-0">
             <div className="relative">
               <div
                 className="pointer-events-none absolute -inset-x-8 -top-8 -bottom-8 rounded-[2.5rem] opacity-60 blur-3xl"
@@ -613,7 +736,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
 
               {/* floating glass cards (desktop only, so they never collide on phones) */}
               <div
-                className="absolute -left-10 top-8 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl lg:flex"
+                className="absolute -left-10 top-8 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl xl:flex"
                 style={{ animation: "float 7s ease-in-out infinite" }}
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-verified/15 text-verified">
@@ -626,7 +749,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
               </div>
 
               <div
-                className="absolute -right-10 top-1/3 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl lg:flex"
+                className="absolute -right-10 top-1/3 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl xl:flex"
                 style={{ animation: "float 8s ease-in-out 1.1s infinite" }}
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-safety/15 text-safety">
@@ -639,7 +762,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
               </div>
 
               <div
-                className="absolute -bottom-6 -left-8 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl lg:flex"
+                className="absolute -bottom-6 -left-8 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl xl:flex"
                 style={{ animation: "float 9s ease-in-out 0.6s infinite" }}
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-sand/15 text-sand">
@@ -652,7 +775,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
               </div>
 
               <div
-                className="absolute -bottom-6 -right-8 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl lg:flex"
+                className="absolute -bottom-6 -right-8 hidden items-center gap-2.5 rounded-2xl border border-white/10 bg-[#131A22]/85 px-4 py-3 shadow-2xl shadow-black/50 backdrop-blur-xl xl:flex"
                 style={{ animation: "float 7.5s ease-in-out 1.7s infinite" }}
               >
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-verified/15 text-verified">
@@ -667,7 +790,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           </Reveal>
 
           {/* live-looking stats — full width under the split */}
-          <Reveal delay={360} className="lg:col-span-2">
+          <Reveal delay={360} className="xl:col-span-2">
             <div className="mt-4 grid gap-3 sm:grid-cols-3">
               {[
                 { label: "Cost estimate", value: "₹42,500" },
@@ -714,7 +837,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
       </section>
 
       {/* ================= Problem ================= */}
-      <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+      <section className="mx-auto max-w-6xl xl:max-w-7xl px-5 py-20 sm:px-8">
         <Reveal>
           <h2 className="font-display mx-auto max-w-2xl text-center text-3xl font-bold tracking-tight sm:text-4xl">
             The civic execution gap is{" "}
@@ -736,7 +859,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
 
 {/* ================= How it works ================= */}
       <section id="how-it-works" className="relative scroll-mt-20 overflow-hidden border-t border-white/5 bg-[#10161d]/60">
-        <div className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+        <div className="mx-auto max-w-6xl xl:max-w-7xl px-5 py-20 sm:px-8">
           <Reveal>
             <div className="mx-auto max-w-2xl text-center">
               <span className="text-[11px] font-bold uppercase tracking-widest text-verified">How it works</span>
@@ -824,36 +947,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
                 </div>
 
                 {/* Live leaderboard preview */}
-                <div className="w-full max-w-xs shrink-0 rounded-xl border border-white/10 bg-[#0E1319]/80 p-4 shadow-lg shadow-black/30">
-                  <p className="mb-3 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-400">
-                    <span>City leaderboard</span>
-                    <span className="text-verified">live</span>
-                  </p>
-                  <div className="space-y-2.5">
-                    {REWARD_BOARD.map((row, i) => (
-                      <div key={row.name} className="flex items-center gap-2.5">
-                        <span className="w-6 text-center text-sm">{row.emoji}</span>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-baseline justify-between gap-2">
-                            <p className="truncate text-xs font-semibold text-white">{row.name}</p>
-                            <p className="text-[10px] font-bold text-verified">{row.pts.toLocaleString("en-IN")}</p>
-                          </div>
-                          <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-slate-800">
-                            <div
-                              className="reward-bar h-full rounded-full"
-                              style={{
-                                width: `${(row.pts / REWARD_BOARD[0].pts) * 100}%`,
-                                background: "linear-gradient(90deg,#00d9a3,#00ffc8)",
-                                animationDelay: `${i * 0.35}s`,
-                              }}
-                            />
-                          </div>
-                        </div>
-                        <span className="w-4 text-right text-[10px] font-bold text-slate-500">{row.role}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <GlobeLeaderboard />
               </div>
             </div>
           </Reveal>
@@ -889,18 +983,14 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
           0%, 100% { opacity: 0.25; }
           50% { opacity: 1; }
         }
-        .reward-bar {
-          transform-origin: left;
-          animation: rewardGrow 1.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-        }
-        @keyframes rewardGrow {
-          from { transform: scaleX(0); }
-          to { transform: scaleX(1); }
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
       `}</style>
 
       {/* ================= Roles bento ================= */}
-      <section id="for-everyone" className="mx-auto scroll-mt-20 max-w-6xl px-5 py-20 sm:px-8">
+      <section id="for-everyone" className="mx-auto scroll-mt-20 max-w-6xl xl:max-w-7xl px-5 py-20 sm:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-[11px] font-bold uppercase tracking-widest text-sand">For everyone</span>
@@ -961,7 +1051,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
       {/* ================= AI verification ================= */}
       <section id="ai-verification" className="relative scroll-mt-20 overflow-hidden border-t border-white/5 bg-[#10161d]/60">
         <Blob className="-bottom-24 right-1/5 h-72 w-72" duration="19s" from="rgba(0,217,163,0.3)" to="rgba(255,106,61,0.1)" />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:px-8 lg:grid-cols-2">
+        <div className="relative mx-auto grid max-w-6xl xl:max-w-7xl items-center gap-12 px-5 py-20 sm:px-8 xl:grid-cols-2">
           <Reveal>
             <div>
               <span className="text-[11px] font-bold uppercase tracking-widest text-verified">The trust layer</span>
@@ -1016,7 +1106,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
       </section>
 
       {/* ================= Live from the street ================= */}
-      <section className="mx-auto scroll-mt-20 max-w-6xl px-5 py-20 sm:px-8">
+      <section className="mx-auto scroll-mt-20 max-w-6xl xl:max-w-7xl px-5 py-20 sm:px-8">
         <Reveal>
           <div className="mx-auto max-w-2xl text-center">
             <span className="text-[11px] font-bold uppercase tracking-widest text-verified">Live from the street</span>
@@ -1073,7 +1163,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
 
       {/* ================= Stories marquee ================= */}
       <section id="stories" className="scroll-mt-20">
-        <div className="mx-auto max-w-6xl px-5 pt-20 sm:px-8">
+        <div className="mx-auto max-w-6xl xl:max-w-7xl px-5 pt-20 sm:px-8">
           <Reveal>
             <div className="mx-auto max-w-2xl text-center">
               <span className="text-[11px] font-bold uppercase tracking-widest text-sand">Stories</span>
@@ -1117,7 +1207,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
       </section>
 
       {/* ================= Final CTA ================= */}
-      <section className="mx-auto max-w-6xl px-5 py-20 sm:px-8">
+      <section className="mx-auto max-w-6xl xl:max-w-7xl px-5 py-20 sm:px-8">
         <Reveal>
           <div
             className="relative overflow-hidden rounded-3xl border border-white/10 px-6 py-16 text-center sm:px-12"
@@ -1163,7 +1253,7 @@ export default function LandingPage({ onSignIn }: LandingPageProps) {
 
       {/* ================= Footer ================= */}
       <footer className="border-t border-white/5 bg-[#0c1116]">
-        <div className="mx-auto max-w-6xl px-5 py-14 sm:px-8">
+        <div className="mx-auto max-w-6xl xl:max-w-7xl px-5 py-14 sm:px-8">
           <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
             <div>
               <div className="flex items-center gap-2.5">
