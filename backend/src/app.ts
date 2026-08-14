@@ -15,7 +15,7 @@ export async function createApp(): Promise<express.Express> {
   app.use(express.json({ limit: "20mb" }));
 
   app.get("/api/health", (_req, res) => {
-    res.json({ status: "ok", app: "Civic Fix AI" });
+    res.json({ status: "ok", app: "CivicFix" });
   });
 
   app.use("/api", apiRouter);

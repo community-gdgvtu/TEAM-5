@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: civicfix-backend
+    runtime: node
+    buildCommand: npm install && npx esbuild backend/server.ts --bundle --platform=node --format=cjs --packages=external --outfile=dist/server.cjs
+    startCommand: node dist/server.cjs
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: VITE_GOOGLE_CLIENT_ID
+        sync: false
