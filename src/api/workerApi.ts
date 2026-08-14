@@ -167,13 +167,36 @@ export interface TaskHistoryData {
 }
 
 export async function getTaskHistory(): Promise<TaskHistoryData | null> {
-  try {
-    const res = await fetch("/api/worker/task-history", {
+  const { getOpenJobs, getMyBidsMock, reviews } = await import("../data/workerMock");
+  const mockData: TaskHistoryData = {
+    workerId: "worker_001",
+    user: {
+      name: "Rahul Kumar",
+      skillCategory: "Drainage Expert",
+      licenseId: "MH-2024-1137",
+      memberSince: "2024",
+      location: "Mumbai, Maharashtra",
+      verified: true,
+    },
+    stats: {
+      totalJobs: 18,
+      completedJobs: 14,
+      activeJobs: 2,
+      pendingBids: 2,
+      totalEarned: 28500,
+      avgRating: 4.8,
+      acceptanceRate: 92,
+      responseTime: "< 2 hours",
+    },
+    jobs: await getOpenJobs(),
+    bids: await getMyBidsMock(),
+    reviews: reviews,
+    tags: ["Drainage Expert", "Road Repair", "Electrical"],
+  };
+  return withFallback<TaskHistoryData>(
+    apiFetch("/api/worker/task-history", {
       headers: { Authorization: `Bearer ${getDemoSessionToken()}` },
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
+    }),
+    mockData
+  );
 }

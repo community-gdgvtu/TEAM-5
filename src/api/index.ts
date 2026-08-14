@@ -8,14 +8,28 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     ...(options.headers as Record<string, string>),
   };
 
-  const res = await fetch(path, { ...options, headers });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
 
-  if (!res.ok) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as any).error || `Request failed (${res.status}).`);
+  try {
+    const res = await fetch(path, { ...options, headers, signal: controller.signal });
+    clearTimeout(timeout);
+
+    const contentType = res.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+      throw new Error("Backend unavailable");
+    }
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      throw new Error((data as any).error || `Request failed (${res.status}).`);
+    }
+
+    return res.json() as Promise<T>;
+  } catch (e) {
+    clearTimeout(timeout);
+    throw e;
   }
-
-  return res.json() as Promise<T>;
 }
 
 /**

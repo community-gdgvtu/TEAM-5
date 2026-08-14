@@ -52,11 +52,25 @@ export async function getMyReports(token?: string | null): Promise<{ reports: Re
 }
 
 export async function createReport(input: ReportInput, token?: string | null): Promise<{ report: Report }> {
-  return apiFetch<{ report: Report }>("/api/reports", {
-    method: "POST",
-    headers: { Authorization: `Bearer ${toSessionToken(token)}` },
-    body: JSON.stringify(input),
-  });
+  const mockReport: Report = {
+    id: `rep_local_${Date.now()}`,
+    issueType: input.issueType,
+    description: input.description,
+    location: input.location || { city: "Mumbai", state: "Maharashtra", country: "India" },
+    status: "Submitted",
+    title: input.title || input.issueType,
+    category: input.issueType,
+    photoUrl: input.photoUrl,
+    submittedAt: new Date().toISOString(),
+  };
+  return withFallback<{ report: Report }>(
+    apiFetch("/api/reports", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${toSessionToken(token)}` },
+      body: JSON.stringify(input),
+    }),
+    { report: mockReport }
+  );
 }
 
 export async function getDonationCampaigns(): Promise<{ campaigns: any[] }> {
